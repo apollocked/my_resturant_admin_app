@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../data/admin_repository.dart';
 import '../theme/app_theme.dart';
 import 'promo_codes_page.dart';
+import 'reports_page.dart';
 import 'restaurants_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -108,7 +109,7 @@ class _HomePageState extends State<HomePage> {
       ),
       body: IndexedStack(
         index: _index,
-        children: const [RestaurantsPage(), PromoCodesPage()],
+        children: const [RestaurantsPage(), PromoCodesPage(), ReportsPage()],
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
@@ -134,6 +135,11 @@ class _HomePageState extends State<HomePage> {
                 icon: Icon(Icons.vpn_key_outlined),
                 selectedIcon: Icon(Icons.vpn_key_rounded),
                 label: 'Promo Codes',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.insert_chart_outlined_rounded),
+                selectedIcon: Icon(Icons.insert_chart_rounded),
+                label: 'Reports',
               ),
             ],
           ),

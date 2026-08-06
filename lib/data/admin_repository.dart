@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../models/admin_report.dart';
 import '../models/promo_code_summary.dart';
 import '../models/restaurant_summary.dart';
 
@@ -29,6 +30,11 @@ class AdminRepository {
     return rows
         .map((e) => PromoCodeSummary.fromJson(e as Map<String, dynamic>))
         .toList();
+  }
+
+  Future<AdminReport> fetchReport() async {
+    final data = await _client.rpc('admin_reports');
+    return AdminReport.fromJson(data as Map<String, dynamic>);
   }
 
   /// Creates a restaurant account directly. Returns the generated promo
