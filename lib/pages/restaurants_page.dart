@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../data/admin_repository.dart';
 import '../models/restaurant_summary.dart';
+import '../theme/app_theme.dart';
 import '../utils/format.dart';
 import '../widgets/add_restaurant_sheet.dart';
 
@@ -17,11 +18,19 @@ class _RestaurantsPageState extends State<RestaurantsPage> {
   List<RestaurantSummary>? _restaurants;
   Object? _error;
   bool _loading = false;
+  String _query = '';
+  final _searchCtrl = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _load();
+  }
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
   }
 
   Future<void> _load() async {
@@ -47,10 +56,18 @@ class _RestaurantsPageState extends State<RestaurantsPage> {
     }
   }
 
+  List<RestaurantSummary> get _filtered {
+    final list = _restaurants ?? const <RestaurantSummary>[];
+    final q = _query.trim().toLowerCase();
+    if (q.isEmpty) return list;
+    return list.where((r) => r.email.toLowerCase().contains(q)).toList();
+  }
+
   Future<void> _openAdd() async {
     final code = await showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
       builder: (_) => const AddRestaurantSheet(),
     );
     if (code == null) return;
@@ -59,9 +76,7 @@ class _RestaurantsPageState extends State<RestaurantsPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          code.isEmpty
-              ? 'Restaurant created.'
-              : 'Restaurant created. Promo code: $code',
+          code.isEmpty ? 'Restaurant created.' : 'Restaurant created. Promo code: $code',
         ),
       ),
     );
@@ -69,16 +84,16 @@ class _RestaurantsPageState extends State<RestaurantsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    Widget body;
+    final list = _filtered;
     if (_loading && _restaurants == null) {
-      body = const Center(child: CircularProgressIndicator());
-    } else if (_error != null && _restaurants == null) {
-      body = Center(
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (_error != null && _restaurants == null) {
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: 48, color: Colors.red),
+            const Icon(Icons.cloud_off_rounded, size: 48, color: kDanger),
             const SizedBox(height: 12),
             const Text('Failed to load restaurants'),
             const SizedBox(height: 12),
@@ -86,36 +101,189 @@ class _RestaurantsPageState extends State<RestaurantsPage> {
           ],
         ),
       );
-    } else if (_restaurants == null || _restaurants!.isEmpty) {
-      body = Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.storefront_outlined, size: 56, color: cs.outline),
-            const SizedBox(height: 12),
-            const Text('No restaurants yet'),
-            const SizedBox(height: 4),
-            Text('Tap + to add your first restaurant', style: TextStyle(color: cs.onSurfaceVariant)),
-          ],
-        ),
-      );
-    } else {
-      body = RefreshIndicator(
-        onRefresh: _load,
-        child: ListView.builder(
-          padding: const EdgeInsets.all(12),
-          itemCount: _restaurants!.length,
-          itemBuilder: (context, i) => _RestaurantCard(r: _restaurants![i]),
-        ),
-      );
     }
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _openAdd,
-        icon: const Icon(Icons.add),
-        label: const Text('Add restaurant'),
+        backgroundColor: kAccent,
+        foregroundColor: Colors.white,
+        icon: const Icon(Icons.add_rounded),
+        label: const Text('Add restaurant', style: TextStyle(fontWeight: FontWeight.w700)),
       ),
-      body: body,
+      body: RefreshIndicator(
+        onRefresh: _load,
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+          children: [
+            _header(),
+            const SizedBox(height: 16),
+            _statGrid(),
+            const SizedBox(height: 20),
+            _searchField(),
+            const SizedBox(height: 14),
+            if (list.isEmpty)
+              _emptyState(_restaurants!.isEmpty)
+            else
+              ...list.map((r) => _RestaurantCard(r: r)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _header() {
+    final cs = Theme.of(context).colorScheme;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Restaurants',
+                style: TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.6,
+                  color: cs.onSurface,
+                ),
+              ),
+              const SizedBox(height: 3),
+              Text(
+                '${_restaurants?.length ?? 0} registered accounts',
+                style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
+              ),
+            ],
+          ),
+        ),
+        Container(
+          width: 10,
+          height: 10,
+          decoration: const BoxDecoration(color: kSuccess, shape: BoxShape.circle),
+        ),
+      ],
+    );
+  }
+
+  Widget _statGrid() {
+    final list = _restaurants ?? const <RestaurantSummary>[];
+    final total = list.length;
+    final activated = list.where((r) => r.activated).length;
+    final active = list.where((r) => r.activated && (r.daysRemaining ?? -1) > 0).length;
+    final expiring = list
+        .where((r) {
+          final d = r.daysRemaining;
+          return r.activated && d != null && d > 0 && d <= 30;
+        })
+        .length;
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(child: _statTile(Icons.storefront_rounded, total, 'Total', kAccent)),
+            const SizedBox(width: 12),
+            Expanded(child: _statTile(Icons.check_circle_rounded, activated, 'Activated', kSuccess)),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(child: _statTile(Icons.bolt_rounded, active, 'Active subs', kInfo)),
+            const SizedBox(width: 12),
+            Expanded(child: _statTile(Icons.schedule_rounded, expiring, 'Expiring ≤30d', kWarning)),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _statTile(IconData icon, int value, String label, Color color) {
+    final cs = Theme.of(context).colorScheme;
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: dark ? const Color(0xFF15161C) : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: (dark ? Colors.white : const Color(0xFF111827)).withValues(alpha: dark ? 0.10 : 0.07)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(13),
+            ),
+            child: Icon(icon, size: 21, color: color),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '$value',
+                  style: TextStyle(fontSize: 19, fontWeight: FontWeight.w800, letterSpacing: -0.4, color: cs.onSurface),
+                ),
+                Text(label, style: TextStyle(fontSize: 11.5, color: cs.onSurfaceVariant), overflow: TextOverflow.ellipsis),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _searchField() {
+    return TextField(
+      controller: _searchCtrl,
+      onChanged: (v) => setState(() => _query = v),
+      decoration: InputDecoration(
+        hintText: 'Search by email…',
+        prefixIcon: const Icon(Icons.search_rounded, size: 20),
+        suffixIcon: _query.isEmpty
+            ? null
+            : IconButton(
+                icon: const Icon(Icons.close_rounded, size: 18),
+                onPressed: () {
+                  _searchCtrl.clear();
+                  setState(() => _query = '');
+                },
+              ),
+      ),
+    );
+  }
+
+  Widget _emptyState(bool noData) {
+    final cs = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(top: 64),
+      child: Column(
+        children: [
+          Container(
+            width: 84,
+            height: 84,
+            decoration: BoxDecoration(
+              color: cs.primaryContainer.withValues(alpha: 0.5),
+              borderRadius: BorderRadius.circular(28),
+            ),
+            child: Icon(noData ? Icons.storefront_outlined : Icons.search_off_rounded, size: 40, color: cs.primary),
+          ),
+          const SizedBox(height: 18),
+          Text(
+            noData ? 'No restaurants yet' : 'No matches',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: cs.onSurface),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            noData ? 'Tap “Add restaurant” to create the first one.' : 'Try a different search.',
+            style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -127,46 +295,62 @@ class _RestaurantCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final activatedColor = r.activated ? Colors.green : Colors.orange;
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final remaining = r.daysRemaining;
+    final isExpired = remaining != null && remaining <= 0;
+    final statusColor = !r.activated
+        ? kWarning
+        : isExpired
+            ? kDanger
+            : kSuccess;
+    final statusLabel = !r.activated
+        ? 'Not activated'
+        : isExpired
+            ? 'Expired'
+            : 'Activated';
     return Card(
-      margin: const EdgeInsets.only(bottom: 10),
+      margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                CircleAvatar(
-                  backgroundColor: cs.primaryContainer,
-                  child: Text(
-                    avatarInitials(r.email),
-                    style: TextStyle(fontWeight: FontWeight.w700, color: cs.onPrimaryContainer),
-                  ),
-                ),
+                _avatar(cs),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(r.email, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-                      Text('Joined ${formatDateShort(r.createdAt)}', style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
+                      Text(
+                        r.email,
+                        style: const TextStyle(fontSize: 15.5, fontWeight: FontWeight.w700),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        'Joined ${formatDateShort(r.createdAt)}',
+                        style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
+                      ),
                     ],
                   ),
                 ),
-                _chip(cs, activatedColor, r.activated ? 'Activated' : 'Not activated'),
+                _statusPill(statusColor, statusLabel),
               ],
             ),
+            const SizedBox(height: 14),
+            _promoBlock(cs, dark, remaining, isExpired),
             const SizedBox(height: 12),
-            _promoBlock(cs),
-            const SizedBox(height: 10),
             _staffBlock(cs),
+            const SizedBox(height: 12),
+            Divider(color: cs.outlineVariant.withValues(alpha: 0.5)),
             const SizedBox(height: 10),
             Row(
               children: [
-                _stat(cs, Icons.restaurant_menu, r.recipesCount, 'recipes'),
-                const SizedBox(width: 18),
-                _stat(cs, Icons.receipt_long, r.ordersCount, 'orders'),
+                _stat(cs, Icons.restaurant_menu_rounded, r.recipesCount, 'recipes'),
+                const SizedBox(width: 20),
+                _stat(cs, Icons.receipt_long_rounded, r.ordersCount, 'orders'),
               ],
             ),
           ],
@@ -175,53 +359,106 @@ class _RestaurantCard extends StatelessWidget {
     );
   }
 
-  Widget _promoBlock(ColorScheme cs) {
+  Widget _avatar(ColorScheme cs) {
+    final color = colorForEmail(r.email);
+    return Container(
+      width: 46,
+      height: 46,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [color, color.withValues(alpha: 0.6)],
+        ),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        avatarInitials(r.email),
+        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 15),
+      ),
+    );
+  }
+
+  Widget _statusPill(Color color, String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(30)),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(width: 7, height: 7, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+          const SizedBox(width: 6),
+          Text(label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: color)),
+        ],
+      ),
+    );
+  }
+
+  Widget _promoBlock(ColorScheme cs, bool dark, int? remaining, bool isExpired) {
     final code = r.promoCode;
     if (code == null) {
       return Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
-          borderRadius: BorderRadius.circular(10),
+          color: (dark ? Colors.white : const Color(0xFF111827)).withValues(alpha: dark ? 0.05 : 0.04),
+          borderRadius: BorderRadius.circular(14),
         ),
-        child: const Text('No promo code claimed', style: TextStyle(fontSize: 13)),
+        child: Text('No promo code claimed yet', style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant)),
       );
     }
-    final remaining = r.daysRemaining;
-    final expColor = remaining == null
-        ? cs.onSurfaceVariant
-        : remaining <= 0
-            ? Colors.red
-            : remaining <= 30
-                ? Colors.orange
-                : Colors.green;
+    final total = r.activationDays;
+    final fraction = total > 0 && remaining != null ? (remaining / total).clamp(0.0, 1.0) : 0.0;
+    final barColor = isExpired ? kDanger : (remaining != null && remaining <= 30 ? kWarning : kSuccess);
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(10),
+        color: (dark ? Colors.white : const Color(0xFF111827)).withValues(alpha: dark ? 0.05 : 0.04),
+        borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Code $code  •  ${r.activationDays} days activation',
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, fontFamily: 'monospace'),
+          Row(
+            children: [
+              const Icon(Icons.vpn_key_rounded, size: 16, color: kAccent),
+              const SizedBox(width: 8),
+              Text(
+                'Activation  •  $total days',
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+              ),
+              const Spacer(),
+              Text(
+                remaining == null
+                    ? '—'
+                    : isExpired
+                        ? 'Expired'
+                        : '$remaining days left',
+                style: TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w800,
+                  color: isExpired ? kDanger : kAccent,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 4),
-          Text(
-            'Activated ${formatDateShort(r.promoUsedAt)}  •  expires ${formatDateShort(r.promoExpiresAt)}',
-            style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
-          ),
-          if (remaining != null) ...[
-            const SizedBox(height: 4),
-            Text(
-              remaining <= 0 ? 'Expired ${pluralDays(-remaining)} ago' : '$remaining days remaining',
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: expColor),
+          const SizedBox(height: 10),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(6),
+            child: LinearProgressIndicator(
+              value: fraction,
+              minHeight: 8,
+              backgroundColor: cs.outlineVariant.withValues(alpha: 0.4),
+              valueColor: AlwaysStoppedAnimation(barColor),
             ),
-          ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Code $code  •  ${formatDateShort(r.promoUsedAt)}  →  ${formatDateShort(r.promoExpiresAt)}',
+            style: TextStyle(fontSize: 11.5, color: cs.onSurfaceVariant, fontFamily: 'monospace'),
+          ),
         ],
       ),
     );
@@ -233,7 +470,7 @@ class _RestaurantCard extends StatelessWidget {
       runSpacing: 6,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        Text('Staff PINs:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: cs.onSurfaceVariant)),
+        Text('Staff PINs:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: cs.onSurfaceVariant)),
         _pinChip(cs, 'Admin', r.pinAdminSet),
         _pinChip(cs, 'Waiter', r.pinWaiterSet),
         _pinChip(cs, 'Kitchen', r.pinKitchenSet),
@@ -242,18 +479,19 @@ class _RestaurantCard extends StatelessWidget {
   }
 
   Widget _pinChip(ColorScheme cs, String label, bool set) {
+    final color = set ? kSuccess : cs.outline;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: chipBackground(cs, set ? Colors.green : cs.outline),
-        borderRadius: BorderRadius.circular(20),
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(color: color.withValues(alpha: set ? 0.12 : 0.06), borderRadius: BorderRadius.circular(20)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(set ? Icons.check_circle : Icons.remove_circle_outline, size: 14, color: set ? Colors.green.shade700 : cs.outline),
-          const SizedBox(width: 4),
-          Text('$label PIN ${set ? 'set' : '—'}', style: TextStyle(fontSize: 12, color: set ? Colors.green.shade800 : cs.onSurfaceVariant)),
+          Icon(set ? Icons.check_circle_rounded : Icons.remove_circle_outline_rounded, size: 13, color: set ? color : cs.outline),
+          const SizedBox(width: 5),
+          Text(
+            '$label PIN ${set ? 'set' : '—'}',
+            style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: set ? color : cs.onSurfaceVariant),
+          ),
         ],
       ),
     );
@@ -264,17 +502,9 @@ class _RestaurantCard extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(icon, size: 16, color: cs.onSurfaceVariant),
-        const SizedBox(width: 4),
-        Text('$value $label', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: cs.onSurfaceVariant)),
+        const SizedBox(width: 5),
+        Text('$value $label', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: cs.onSurfaceVariant)),
       ],
-    );
-  }
-
-  Widget _chip(ColorScheme cs, Color color, String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(color: chipBackground(cs, color), borderRadius: BorderRadius.circular(20)),
-      child: Text(label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: color)),
     );
   }
 }

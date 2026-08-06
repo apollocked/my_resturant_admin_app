@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:postgrest/postgrest.dart';
 
 import '../data/admin_repository.dart';
+import '../theme/app_theme.dart';
 
 class AddRestaurantSheet extends StatefulWidget {
   const AddRestaurantSheet({super.key});
@@ -20,7 +21,14 @@ class _AddRestaurantSheetState extends State<AddRestaurantSheet> {
   String? _error;
   int _months = 12;
 
-  static const _durationOptions = <int>[0, 1, 3, 6, 12, 24];
+  static const _durations = <int>[1, 3, 6, 12, 24];
+  static const _durationLabels = <int, String>{
+    1: '1 mo',
+    3: '3 mo',
+    6: '6 mo',
+    12: '12 mo',
+    24: '24 mo',
+  };
 
   @override
   void dispose() {
@@ -56,11 +64,12 @@ class _AddRestaurantSheetState extends State<AddRestaurantSheet> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final dark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: EdgeInsets.only(
         left: 20,
         right: 20,
-        top: 20,
+        top: 12,
         bottom: MediaQuery.of(context).viewInsets.bottom + 20,
       ),
       child: SingleChildScrollView(
@@ -70,11 +79,42 @@ class _AddRestaurantSheetState extends State<AddRestaurantSheet> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text('Add restaurant', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: cs.onSurface)),
-              const SizedBox(height: 4),
-              Text(
-                'Creates the restaurant account directly. A promo code is minted and claimed when an activation duration is chosen.',
-                style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.symmetric(horizontal: 160),
+                decoration: BoxDecoration(
+                  color: cs.outlineVariant.withValues(alpha: 0.6),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              const SizedBox(height: 18),
+              Row(
+                children: [
+                  Container(
+                    width: 42,
+                    height: 42,
+                    decoration: BoxDecoration(
+                      color: kAccent.withValues(alpha: 0.14),
+                      borderRadius: BorderRadius.circular(13),
+                    ),
+                    child: const Icon(Icons.storefront_rounded, size: 22, color: kAccent),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Add restaurant', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: cs.onSurface)),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Creates the account directly. Choosing a duration mints & claims a promo code.',
+                          style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 20),
               TextFormField(
@@ -84,7 +124,6 @@ class _AddRestaurantSheetState extends State<AddRestaurantSheet> {
                 decoration: InputDecoration(
                   prefixIcon: const Icon(Icons.email_outlined, size: 20),
                   labelText: 'Restaurant email',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
                 ),
                 validator: (v) => v == null || !v.contains('@') ? 'Enter a valid email' : null,
               ),
@@ -99,29 +138,67 @@ class _AddRestaurantSheetState extends State<AddRestaurantSheet> {
                     onPressed: () => setState(() => _obscure = !_obscure),
                   ),
                   labelText: 'Password',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
                 ),
                 validator: (v) => v == null || v.length < 6 ? 'Password too short (min 6)' : null,
               ),
-              const SizedBox(height: 14),
-              DropdownButtonFormField<int>(
-                initialValue: _months,
-                decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.timer_outlined, size: 20),
-                  labelText: 'Activation duration',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
-                ),
-                items: _durationOptions
-                    .map((m) => DropdownMenuItem(
-                          value: m,
-                          child: Text(m == 0 ? 'No activation' : '$m month${m == 1 ? '' : 's'}'),
-                        ))
-                    .toList(),
-                onChanged: (v) => setState(() => _months = v ?? 0),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  const Icon(Icons.timer_outlined, size: 16, color: kAccent),
+                  const SizedBox(width: 8),
+                  Text('Activation duration', style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: cs.onSurface)),
+                  const Spacer(),
+                  Text(
+                    'mints a promo code',
+                    style: TextStyle(fontSize: 11.5, color: cs.onSurfaceVariant),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: _durations.map((m) {
+                  final selected = _months == m;
+                  return InkWell(
+                    borderRadius: BorderRadius.circular(14),
+                    onTap: () => setState(() => _months = m),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 150),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: selected ? kAccent : (dark ? Colors.white : const Color(0xFF111827)).withValues(alpha: dark ? 0.05 : 0.04),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: selected ? kAccent : (dark ? Colors.white : const Color(0xFF111827)).withValues(alpha: dark ? 0.10 : 0.07)),
+                      ),
+                      child: Text(
+                        _durationLabels[m]!,
+                        style: TextStyle(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w700,
+                          color: selected ? Colors.white : cs.onSurface,
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
               ),
               if (_error != null) ...[
                 const SizedBox(height: 14),
-                Text(_error!, style: TextStyle(color: cs.error, fontSize: 13)),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: kDanger.withValues(alpha: 0.10),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.error_outline_rounded, size: 18, color: kDanger),
+                      const SizedBox(width: 8),
+                      Expanded(child: Text(_error!, style: const TextStyle(color: kDanger, fontSize: 13))),
+                    ],
+                  ),
+                ),
               ],
               const SizedBox(height: 20),
               Row(
@@ -129,10 +206,6 @@ class _AddRestaurantSheetState extends State<AddRestaurantSheet> {
                   Expanded(
                     child: OutlinedButton(
                       onPressed: _loading ? null : () => Navigator.pop(context),
-                      style: OutlinedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(48),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                      ),
                       child: const Text('Cancel'),
                     ),
                   ),
@@ -140,13 +213,9 @@ class _AddRestaurantSheetState extends State<AddRestaurantSheet> {
                   Expanded(
                     child: FilledButton(
                       onPressed: _loading ? null : _submit,
-                      style: FilledButton.styleFrom(
-                        minimumSize: const Size.fromHeight(48),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                      ),
                       child: _loading
                           ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                          : const Text('Create', style: TextStyle(fontWeight: FontWeight.w700)),
+                          : const Text('Create'),
                     ),
                   ),
                 ],

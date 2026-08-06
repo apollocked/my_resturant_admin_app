@@ -3,7 +3,10 @@ import 'package:flutter/services.dart';
 
 import '../data/admin_repository.dart';
 import '../models/promo_code_summary.dart';
+import '../theme/app_theme.dart';
 import '../utils/format.dart';
+
+enum _CodeFilter { all, used, available, expired }
 
 class PromoCodesPage extends StatefulWidget {
   const PromoCodesPage({super.key});
@@ -17,6 +20,7 @@ class _PromoCodesPageState extends State<PromoCodesPage> {
   List<PromoCodeSummary>? _codes;
   Object? _error;
   bool _loading = false;
+  _CodeFilter _filter = _CodeFilter.all;
 
   @override
   void initState() {
@@ -47,6 +51,16 @@ class _PromoCodesPageState extends State<PromoCodesPage> {
     }
   }
 
+  List<PromoCodeSummary> get _filtered {
+    final list = _codes ?? const <PromoCodeSummary>[];
+    return switch (_filter) {
+      _CodeFilter.all => list,
+      _CodeFilter.used => list.where((c) => c.isUsed).toList(),
+      _CodeFilter.available => list.where((c) => !c.isUsed && !c.isExpired).toList(),
+      _CodeFilter.expired => list.where((c) => c.isExpired).toList(),
+    };
+  }
+
   void _copy(String code) {
     Clipboard.setData(ClipboardData(text: code));
     if (mounted) {
@@ -59,15 +73,15 @@ class _PromoCodesPageState extends State<PromoCodesPage> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    Widget body;
     if (_loading && _codes == null) {
-      body = const Center(child: CircularProgressIndicator());
-    } else if (_error != null && _codes == null) {
-      body = Center(
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (_error != null && _codes == null) {
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: 48, color: Colors.red),
+            const Icon(Icons.cloud_off_rounded, size: 48, color: kDanger),
             const SizedBox(height: 12),
             const Text('Failed to load promo codes'),
             const SizedBox(height: 12),
@@ -75,28 +89,97 @@ class _PromoCodesPageState extends State<PromoCodesPage> {
           ],
         ),
       );
-    } else if (_codes == null || _codes!.isEmpty) {
-      body = Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.vpn_key_off_outlined, size: 56, color: cs.outline),
-            const SizedBox(height: 12),
-            const Text('No promo codes yet'),
-          ],
-        ),
-      );
-    } else {
-      body = RefreshIndicator(
-        onRefresh: _load,
-        child: ListView.builder(
-          padding: const EdgeInsets.all(12),
-          itemCount: _codes!.length,
-          itemBuilder: (context, i) => _PromoCard(c: _codes![i], onCopy: _copy),
+    }
+    final list = _filtered;
+    return RefreshIndicator(
+      onRefresh: _load,
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Promo Codes',
+                      style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, letterSpacing: -0.6, color: cs.onSurface),
+                    ),
+                    const SizedBox(height: 3),
+                    Text('${_codes?.length ?? 0} codes minted', style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _filterChips(cs),
+          const SizedBox(height: 14),
+          if (list.isEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 64),
+              child: Column(
+                children: [
+                  Container(
+                    width: 84,
+                    height: 84,
+                    decoration: BoxDecoration(
+                      color: cs.primaryContainer.withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(28),
+                    ),
+                    child: Icon(
+                      _filter == _CodeFilter.all ? Icons.vpn_key_off_outlined : Icons.filter_alt_off_rounded,
+                      size: 40,
+                      color: cs.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  Text(
+                    _filter == _CodeFilter.all ? 'No promo codes yet' : 'Nothing here',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: cs.onSurface),
+                  ),
+                ],
+              ),
+            )
+          else
+            ...list.map((c) => _PromoCard(c: c, onCopy: _copy)),
+        ],
+      ),
+    );
+  }
+
+  Widget _filterChips(ColorScheme cs) {
+    Widget chip(_CodeFilter f, String label) {
+      final count = switch (f) {
+        _CodeFilter.all => _codes?.length ?? 0,
+        _CodeFilter.used => _codes?.where((c) => c.isUsed).length ?? 0,
+        _CodeFilter.available => _codes?.where((c) => !c.isUsed && !c.isExpired).length ?? 0,
+        _CodeFilter.expired => _codes?.where((c) => c.isExpired).length ?? 0,
+      };
+      return Padding(
+        padding: const EdgeInsets.only(right: 8),
+        child: ChoiceChip(
+          label: Text('$label  $count'),
+          selected: _filter == f,
+          onSelected: (_) => setState(() => _filter = f),
+          showCheckmark: false,
         ),
       );
     }
-    return Scaffold(body: body);
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          chip(_CodeFilter.all, 'All'),
+          chip(_CodeFilter.used, 'Used'),
+          chip(_CodeFilter.available, 'Available'),
+          chip(_CodeFilter.expired, 'Expired'),
+        ],
+      ),
+    );
   }
 }
 
@@ -111,57 +194,90 @@ class _PromoCard extends StatelessWidget {
     final Color statusColor;
     final String statusText;
     if (c.isUsed) {
-      statusColor = Colors.green;
+      statusColor = kSuccess;
       statusText = 'Used';
     } else if (c.isExpired) {
-      statusColor = Colors.red;
+      statusColor = kDanger;
       statusText = 'Expired';
     } else {
-      statusColor = Colors.blue;
+      statusColor = kInfo;
       statusText = 'Available';
     }
     final days = c.activationDays;
     return Card(
-      margin: const EdgeInsets.only(bottom: 10),
+      margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
+        padding: const EdgeInsets.fromLTRB(16, 16, 8, 16),
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    c.code,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, fontFamily: 'monospace', letterSpacing: 1),
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  decoration: BoxDecoration(
-                    color: statusColor.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(statusText, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: statusColor)),
-                ),
-                IconButton(
-                  icon: Icon(Icons.copy_rounded, size: 18, color: cs.primary),
-                  tooltip: 'Copy',
-                  onPressed: () => onCopy(c.code),
-                ),
-              ],
+            Container(
+              width: 5,
+              height: 58,
+              decoration: BoxDecoration(
+                color: statusColor.withValues(alpha: 0.55),
+                borderRadius: BorderRadius.circular(4),
+              ),
             ),
-            const SizedBox(height: 6),
-            if (c.isUsed) ...[
-              Text('Claimed by ${c.usedByEmail ?? '-'}', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-              if (days != null) Text('Activation duration: $days days', style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
-            ],
-            const SizedBox(height: 4),
-            Text(
-              'Created ${formatDateShort(c.createdAt)}'
-              '${c.usedAt != null ? '  •  used ${formatDateShort(c.usedAt)}' : ''}'
-              '${c.expiresAt != null ? '  •  expires ${formatDateShort(c.expiresAt)}' : ''}',
-              style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          c.code,
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 1.5,
+                            color: cs.onSurface,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(color: statusColor.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(30)),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(width: 7, height: 7, decoration: BoxDecoration(color: statusColor, shape: BoxShape.circle)),
+                            const SizedBox(width: 6),
+                            Text(statusText, style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: statusColor)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  if (c.isUsed) ...[
+                    Text(
+                      'Claimed by ${c.usedByEmail ?? '-'}',
+                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (days != null)
+                      Text(
+                        'Activation duration: $days days',
+                        style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
+                      ),
+                  ],
+                  const SizedBox(height: 4),
+                  Text(
+                    'Created ${formatDateShort(c.createdAt)}'
+                    '${c.usedAt != null ? '  •  used ${formatDateShort(c.usedAt)}' : ''}'
+                    '${c.expiresAt != null ? '  •  expires ${formatDateShort(c.expiresAt)}' : ''}',
+                    style: TextStyle(fontSize: 11.5, color: cs.onSurfaceVariant),
+                  ),
+                ],
+              ),
+            ),
+            IconButton(
+              icon: Icon(Icons.copy_rounded, size: 18, color: cs.primary),
+              tooltip: 'Copy',
+              onPressed: () => onCopy(c.code),
             ),
           ],
         ),

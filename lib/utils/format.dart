@@ -30,3 +30,18 @@ String avatarInitials(String email) {
 }
 
 Color chipBackground(ColorScheme cs, Color color) => color.withValues(alpha: 0.12);
+
+Color colorForEmail(String email) {
+  const palette = [
+    Color(0xFF2E7D32),
+    Color(0xFF1565C0),
+    Color(0xFF6A1B9A),
+    Color(0xFFAD1457),
+    Color(0xFFE65100),
+    Color(0xFF00695C),
+    Color(0xFF4527A0),
+    Color(0xFF283593),
+  ];
+  final h = email.hashCode.abs();
+  return palette[h % palette.length];
+}
