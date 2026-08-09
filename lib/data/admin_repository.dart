@@ -52,5 +52,15 @@ class AdminRepository {
     return code as String?;
   }
 
+  /// Mints a promo code. When [code] is null the database auto-generates one.
+  /// Returns the code that was created.
+  Future<String> createPromoCode({String? code, int durationMonths = 12}) async {
+    final result = await _client.rpc('admin_create_promo_code', params: {
+      'p_code': code,
+      'p_duration_months': durationMonths,
+    });
+    return result as String;
+  }
+
   Future<void> signOut() => _client.auth.signOut();
 }

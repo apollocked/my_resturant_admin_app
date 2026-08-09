@@ -5,6 +5,7 @@ import '../data/admin_repository.dart';
 import '../models/promo_code_summary.dart';
 import '../theme/app_theme.dart';
 import '../utils/format.dart';
+import '../widgets/add_promo_code_sheet.dart';
 
 enum _CodeFilter { all, used, available, expired }
 
@@ -56,7 +57,8 @@ class _PromoCodesPageState extends State<PromoCodesPage> {
     return switch (_filter) {
       _CodeFilter.all => list,
       _CodeFilter.used => list.where((c) => c.isUsed).toList(),
-      _CodeFilter.available => list.where((c) => !c.isUsed && !c.isExpired).toList(),
+      _CodeFilter.available =>
+        list.where((c) => !c.isUsed && !c.isExpired).toList(),
       _CodeFilter.expired => list.where((c) => c.isExpired).toList(),
     };
   }
@@ -65,9 +67,32 @@ class _PromoCodesPageState extends State<PromoCodesPage> {
     Clipboard.setData(ClipboardData(text: code));
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Code copied'), duration: Duration(seconds: 1)),
+        const SnackBar(
+          content: Text('Code copied'),
+          duration: Duration(seconds: 1),
+        ),
       );
     }
+  }
+
+  Future<void> _openAdd() async {
+    final code = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (_) => const AddPromoCodeSheet(),
+    );
+    if (code == null) return;
+    await _load();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Promo code $code minted.'),
+        action: SnackBarAction(label: 'Copy', onPressed: () => _copy(code)),
+      ),
+    );
   }
 
   @override
@@ -91,61 +116,92 @@ class _PromoCodesPageState extends State<PromoCodesPage> {
       );
     }
     final list = _filtered;
-    return RefreshIndicator(
-      onRefresh: _load,
-      child: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Expanded(
+    return Scaffold(
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _openAdd,
+        backgroundColor: kAccent,
+        foregroundColor: Colors.white,
+        icon: const Icon(Icons.add_rounded),
+        label: const Text(
+          'Add code',
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
+      ),
+      body: RefreshIndicator(
+        onRefresh: _load,
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Promo Codes',
+                        style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -0.6,
+                          color: cs.onSurface,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        '${_codes?.length ?? 0} codes minted',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: cs.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            _filterChips(cs),
+            const SizedBox(height: 14),
+            if (list.isEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 64),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Promo Codes',
-                      style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, letterSpacing: -0.6, color: cs.onSurface),
+                    Container(
+                      width: 84,
+                      height: 84,
+                      decoration: BoxDecoration(
+                        color: cs.primaryContainer.withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(28),
+                      ),
+                      child: Icon(
+                        _filter == _CodeFilter.all
+                            ? Icons.vpn_key_off_outlined
+                            : Icons.filter_alt_off_rounded,
+                        size: 40,
+                        color: cs.primary,
+                      ),
                     ),
-                    const SizedBox(height: 3),
-                    Text('${_codes?.length ?? 0} codes minted', style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant)),
+                    const SizedBox(height: 18),
+                    Text(
+                      _filter == _CodeFilter.all
+                          ? 'No promo codes yet'
+                          : 'Nothing here',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: cs.onSurface,
+                      ),
+                    ),
                   ],
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          _filterChips(cs),
-          const SizedBox(height: 14),
-          if (list.isEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: 64),
-              child: Column(
-                children: [
-                  Container(
-                    width: 84,
-                    height: 84,
-                    decoration: BoxDecoration(
-                      color: cs.primaryContainer.withValues(alpha: 0.5),
-                      borderRadius: BorderRadius.circular(28),
-                    ),
-                    child: Icon(
-                      _filter == _CodeFilter.all ? Icons.vpn_key_off_outlined : Icons.filter_alt_off_rounded,
-                      size: 40,
-                      color: cs.primary,
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-                  Text(
-                    _filter == _CodeFilter.all ? 'No promo codes yet' : 'Nothing here',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: cs.onSurface),
-                  ),
-                ],
-              ),
-            )
-          else
-            ...list.map((c) => _PromoCard(c: c, onCopy: _copy)),
-        ],
+              )
+            else
+              ...list.map((c) => _PromoCard(c: c, onCopy: _copy)),
+          ],
+        ),
       ),
     );
   }
@@ -155,7 +211,8 @@ class _PromoCodesPageState extends State<PromoCodesPage> {
       final count = switch (f) {
         _CodeFilter.all => _codes?.length ?? 0,
         _CodeFilter.used => _codes?.where((c) => c.isUsed).length ?? 0,
-        _CodeFilter.available => _codes?.where((c) => !c.isUsed && !c.isExpired).length ?? 0,
+        _CodeFilter.available =>
+          _codes?.where((c) => !c.isUsed && !c.isExpired).length ?? 0,
         _CodeFilter.expired => _codes?.where((c) => c.isExpired).length ?? 0,
       };
       return Padding(
@@ -238,14 +295,34 @@ class _PromoCard extends StatelessWidget {
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                        decoration: BoxDecoration(color: statusColor.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(30)),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
+                        decoration: BoxDecoration(
+                          color: statusColor.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(30),
+                        ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Container(width: 7, height: 7, decoration: BoxDecoration(color: statusColor, shape: BoxShape.circle)),
+                            Container(
+                              width: 7,
+                              height: 7,
+                              decoration: BoxDecoration(
+                                color: statusColor,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
                             const SizedBox(width: 6),
-                            Text(statusText, style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: statusColor)),
+                            Text(
+                              statusText,
+                              style: TextStyle(
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w700,
+                                color: statusColor,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -255,13 +332,19 @@ class _PromoCard extends StatelessWidget {
                   if (c.isUsed) ...[
                     Text(
                       'Claimed by ${c.usedByEmail ?? '-'}',
-                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
                       overflow: TextOverflow.ellipsis,
                     ),
                     if (days != null)
                       Text(
                         'Activation duration: $days days',
-                        style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: cs.onSurfaceVariant,
+                        ),
                       ),
                   ],
                   const SizedBox(height: 4),
@@ -269,7 +352,10 @@ class _PromoCard extends StatelessWidget {
                     'Created ${formatDateShort(c.createdAt)}'
                     '${c.usedAt != null ? '  •  used ${formatDateShort(c.usedAt)}' : ''}'
                     '${c.expiresAt != null ? '  •  expires ${formatDateShort(c.expiresAt)}' : ''}',
-                    style: TextStyle(fontSize: 11.5, color: cs.onSurfaceVariant),
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      color: cs.onSurfaceVariant,
+                    ),
                   ),
                 ],
               ),
