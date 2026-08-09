@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../data/admin_repository.dart';
 import '../theme/app_theme.dart';
+import '../widgets/confirm_dialog.dart';
 import 'promo_codes_page.dart';
 import 'reports_page.dart';
 import 'restaurants_page.dart';
@@ -33,6 +34,18 @@ class _HomePageState extends State<HomePage> {
         _checked = true;
       });
     }
+  }
+
+  Future<void> _confirmSignOut() async {
+    final confirmed = await showConfirmDialog(
+      context,
+      title: 'Sign out?',
+      message: 'Are you sure you want to sign out of My Rest Admin?',
+      confirmLabel: 'Sign out',
+      icon: Icons.logout_rounded,
+      destructive: true,
+    );
+    if (confirmed) await _repo.signOut();
   }
 
   @override
@@ -68,7 +81,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 const SizedBox(height: 24),
                 FilledButton.icon(
-                  onPressed: () => _repo.signOut(),
+                  onPressed: _confirmSignOut,
                   icon: const Icon(Icons.logout_rounded),
                   label: const Text('Sign out'),
                 ),
@@ -103,7 +116,7 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             tooltip: 'Sign out',
             icon: const Icon(Icons.logout_rounded),
-            onPressed: () => _repo.signOut(),
+            onPressed: _confirmSignOut,
           ),
         ],
       ),

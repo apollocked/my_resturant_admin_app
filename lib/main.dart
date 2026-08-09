@@ -8,6 +8,7 @@ import 'config/supabase_config.dart';
 import 'pages/home_page.dart';
 import 'pages/login_page.dart';
 import 'theme/app_theme.dart';
+import 'widgets/confirm_dialog.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,24 +34,15 @@ class MyRestAdminApp extends StatelessWidget {
         canPop: false,
         onPopInvokedWithResult: (didPop, result) async {
           if (didPop) return;
-          final exit = await showDialog<bool>(
-            context: context,
-            builder: (ctx) => AlertDialog(
-              title: const Text('Exit app?'),
-              content: const Text('Are you sure you want to close the app?'),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(ctx, false),
-                  child: const Text('Cancel'),
-                ),
-                FilledButton(
-                  onPressed: () => Navigator.pop(ctx, true),
-                  child: const Text('Exit'),
-                ),
-              ],
-            ),
+          final exit = await showConfirmDialog(
+            context,
+            title: 'Exit app?',
+            message: 'Are you sure you want to close My Rest Admin?',
+            confirmLabel: 'Exit',
+            icon: Icons.exit_to_app_rounded,
+            destructive: true,
           );
-          if (exit == true) SystemNavigator.pop();
+          if (exit) SystemNavigator.pop();
         },
         child: const AuthGate(),
       ),

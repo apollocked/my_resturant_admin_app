@@ -3,6 +3,7 @@ import 'package:postgrest/postgrest.dart';
 
 import '../data/admin_repository.dart';
 import '../theme/app_theme.dart';
+import 'confirm_dialog.dart';
 
 class AddRestaurantSheet extends StatefulWidget {
   const AddRestaurantSheet({super.key});
@@ -39,6 +40,14 @@ class _AddRestaurantSheetState extends State<AddRestaurantSheet> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
+    final confirmed = await showConfirmDialog(
+      context,
+      title: 'Create restaurant?',
+      message: 'This will create a new restaurant account with access to the platform.',
+      confirmLabel: 'Create',
+      icon: Icons.storefront_rounded,
+    );
+    if (!confirmed || !mounted) return;
     setState(() {
       _loading = true;
       _error = null;
