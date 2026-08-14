@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../core/helpers/responsive.dart';
-import '../core/theme/app_colors.dart';
 import '../data/admin_repository.dart';
 import '../models/restaurant_summary.dart';
 import '../theme/app_theme.dart';

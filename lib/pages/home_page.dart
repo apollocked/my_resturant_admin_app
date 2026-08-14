@@ -62,7 +62,7 @@ class _HomePageState extends State<HomePage> {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [kAccent, Color(0xFFB15CFF)],
+          colors: [kAccent, Color(0xFFFF8A5C)],
         ),
         borderRadius: BorderRadius.circular(size * 0.3),
         boxShadow: [
