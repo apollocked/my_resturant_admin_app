@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../core/helpers/responsive.dart';
 import '../data/admin_repository.dart';
 import '../models/promo_code_summary.dart';
 import '../theme/app_theme.dart';
 import '../utils/format.dart';
 import '../widgets/add_promo_code_sheet.dart';
+import '../widgets/empty_state.dart';
+import '../widgets/shimmer_skeletons.dart';
 
 enum _CodeFilter { all, used, available, expired }
 
@@ -99,7 +102,7 @@ class _PromoCodesPageState extends State<PromoCodesPage> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     if (_loading && _codes == null) {
-      return const Center(child: CircularProgressIndicator());
+      return ShimmerListView(itemCount: 4, itemBuilder: () => const ShimmerCard());
     }
     if (_error != null && _codes == null) {
       return Center(
@@ -130,7 +133,7 @@ class _PromoCodesPageState extends State<PromoCodesPage> {
       body: RefreshIndicator(
         onRefresh: _load,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+          padding: EdgeInsets.fromLTRB(R.padding(context), 8, R.padding(context), 100),
           children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -142,7 +145,7 @@ class _PromoCodesPageState extends State<PromoCodesPage> {
                       Text(
                         'Promo Codes',
                         style: TextStyle(
-                          fontSize: 26,
+                          fontSize: R.fontXxl(context),
                           fontWeight: FontWeight.w800,
                           letterSpacing: -0.6,
                           color: cs.onSurface,
@@ -166,36 +169,17 @@ class _PromoCodesPageState extends State<PromoCodesPage> {
             const SizedBox(height: 14),
             if (list.isEmpty)
               Padding(
-                padding: const EdgeInsets.only(top: 64),
-                child: Column(
-                  children: [
-                    Container(
-                      width: 84,
-                      height: 84,
-                      decoration: BoxDecoration(
-                        color: cs.primaryContainer.withValues(alpha: 0.5),
-                        borderRadius: BorderRadius.circular(28),
-                      ),
-                      child: Icon(
-                        _filter == _CodeFilter.all
-                            ? Icons.vpn_key_off_outlined
-                            : Icons.filter_alt_off_rounded,
-                        size: 40,
-                        color: cs.primary,
-                      ),
-                    ),
-                    const SizedBox(height: 18),
-                    Text(
-                      _filter == _CodeFilter.all
-                          ? 'No promo codes yet'
-                          : 'Nothing here',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: cs.onSurface,
-                      ),
-                    ),
-                  ],
+                padding: const EdgeInsets.only(top: 24),
+                child: EmptyState(
+                  icon: _filter == _CodeFilter.all
+                      ? Icons.vpn_key_off_outlined
+                      : Icons.filter_alt_off_rounded,
+                  title: _filter == _CodeFilter.all
+                      ? 'No promo codes yet'
+                      : 'Nothing here',
+                  subtitle: _filter == _CodeFilter.all
+                      ? 'Tap "Add code" to mint the first one.'
+                      : 'Try a different filter.',
                 ),
               )
             else

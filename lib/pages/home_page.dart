@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
+import '../core/helpers/responsive.dart';
+import '../core/theme/app_colors.dart';
 import '../data/admin_repository.dart';
 import '../theme/app_theme.dart';
+import '../widgets/connectivity_banner.dart';
 import '../widgets/confirm_dialog.dart';
+import '../widgets/liquid_glass_nav_bar.dart';
+import '../widgets/tab_entrance.dart';
 import 'promo_codes_page.dart';
 import 'reports_page.dart';
 import 'restaurants_page.dart';
@@ -48,6 +54,25 @@ class _HomePageState extends State<HomePage> {
     if (confirmed) await _repo.signOut();
   }
 
+  Widget _brand(double size) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [kAccent, Color(0xFFB15CFF)],
+        ),
+        borderRadius: BorderRadius.circular(size * 0.3),
+        boxShadow: [
+          BoxShadow(color: kAccent.withValues(alpha: 0.35), blurRadius: 14, offset: const Offset(0, 4)),
+        ],
+      ),
+      child: Icon(Icons.storefront, size: size * 0.55, color: Colors.white),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
@@ -58,7 +83,7 @@ class _HomePageState extends State<HomePage> {
       return Scaffold(
         body: Center(
           child: Padding(
-            padding: const EdgeInsets.all(32),
+            padding: EdgeInsets.all(R.padding(context)),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -72,7 +97,7 @@ class _HomePageState extends State<HomePage> {
                   child: const Icon(Icons.gpp_bad_outlined, size: 52, color: kWarning),
                 ),
                 const SizedBox(height: 24),
-                const Text('Access denied', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
+                Text('Access denied', style: TextStyle(fontSize: R.fontXl(context), fontWeight: FontWeight.w800)),
                 const SizedBox(height: 8),
                 Text(
                   'Only the platform admin can use this app.',
@@ -91,73 +116,162 @@ class _HomePageState extends State<HomePage> {
         ),
       );
     }
-    return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: [
-            Container(
-              width: 30,
-              height: 30,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [kAccent, Color(0xFFB15CFF)],
+    final pages = const [RestaurantsPage(), PromoCodesPage(), ReportsPage()];
+    final isDesktop = R.isDesktop(context);
+    final isTablet = R.isTablet(context);
+
+    if ((isDesktop || isTablet) && R.height(context) >= 500) {
+      return _exitScope(
+        SafeArea(
+          child: ConnectivityBanner(
+            child: Scaffold(
+              body: Row(
+                children: [
+                  NavigationRail(
+                    selectedIndex: _index,
+                    onDestinationSelected: (i) {
+                      HapticFeedback.selectionClick();
+                      setState(() => _index = i);
+                    },
+                    labelType: NavigationRailLabelType.all,
+                    backgroundColor: Theme.of(context).colorScheme.surface,
+                    indicatorColor: AppColors.primarySoft,
+                    leading: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _brand(36),
+                          const SizedBox(height: 6),
+                          const Text(
+                            'My Rest Admin',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.primary,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                    minWidth: 108,
+                    groupAlignment: 0,
+                    destinations: const [
+                      NavigationRailDestination(
+                        icon: Icon(Icons.storefront_outlined, size: 24),
+                        selectedIcon: Icon(Icons.storefront_rounded, size: 24),
+                        label: Text('Restaurants'),
+                      ),
+                      NavigationRailDestination(
+                        icon: Icon(Icons.vpn_key_outlined, size: 24),
+                        selectedIcon: Icon(Icons.vpn_key_rounded, size: 24),
+                        label: Text('Promo Codes'),
+                      ),
+                      NavigationRailDestination(
+                        icon: Icon(Icons.insert_chart_outlined_rounded, size: 24),
+                        selectedIcon: Icon(Icons.insert_chart_rounded, size: 24),
+                        label: Text('Reports'),
+                      ),
+                    ],
+                    trailing: Expanded(
+                      child: Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: IconButton(
+                            tooltip: 'Sign out',
+                            onPressed: _confirmSignOut,
+                            icon: const Icon(Icons.logout_rounded),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const VerticalDivider(width: 1),
+                  Expanded(
+                    child: TabEntrance(
+                      index: _index,
+                      child: IndexedStack(index: _index, children: pages),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return _exitScope(
+      SafeArea(
+        child: ConnectivityBanner(
+          child: Scaffold(
+            extendBody: true,
+            appBar: AppBar(
+              title: Row(
+                children: [
+                  _brand(28),
+                  const SizedBox(width: 10),
+                  const Text('My Rest Admin'),
+                ],
+              ),
+              actions: [
+                IconButton(
+                  tooltip: 'Sign out',
+                  icon: const Icon(Icons.logout_rounded),
+                  onPressed: _confirmSignOut,
                 ),
-                borderRadius: BorderRadius.circular(9),
-              ),
-              child: const Icon(Icons.storefront, size: 17, color: Colors.white),
+              ],
             ),
-            const SizedBox(width: 10),
-            const Text('My Rest Admin'),
-          ],
-        ),
-        actions: [
-          IconButton(
-            tooltip: 'Sign out',
-            icon: const Icon(Icons.logout_rounded),
-            onPressed: _confirmSignOut,
-          ),
-        ],
-      ),
-      body: IndexedStack(
-        index: _index,
-        children: const [RestaurantsPage(), PromoCodesPage(), ReportsPage()],
-      ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: dark ? const Color(0xFF15161C) : Colors.white,
-          border: Border(
-            top: BorderSide(
-              color: (dark ? Colors.white : const Color(0xFF111827)).withValues(alpha: dark ? 0.10 : 0.07),
+            body: SafeArea(
+              top: true,
+              bottom: false,
+              child: TabEntrance(
+                index: _index,
+                child: IndexedStack(index: _index, children: pages),
+              ),
             ),
-          ),
-        ),
-        child: SafeArea(
-          top: false,
-          child: NavigationBar(
-            selectedIndex: _index,
-            onDestinationSelected: (i) => setState(() => _index = i),
-            destinations: const [
-              NavigationDestination(
-                icon: Icon(Icons.storefront_outlined),
-                selectedIcon: Icon(Icons.storefront_rounded),
-                label: 'Restaurants',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.vpn_key_outlined),
-                selectedIcon: Icon(Icons.vpn_key_rounded),
-                label: 'Promo Codes',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.insert_chart_outlined_rounded),
-                selectedIcon: Icon(Icons.insert_chart_rounded),
-                label: 'Reports',
-              ),
-            ],
+            bottomNavigationBar: LiquidGlassNavBar(
+              items: const [
+                LiquidNavItem(icon: Icons.storefront_outlined, activeIcon: Icons.storefront_rounded, label: 'Restaurants'),
+                LiquidNavItem(icon: Icons.vpn_key_outlined, activeIcon: Icons.vpn_key_rounded, label: 'Promo Codes'),
+                LiquidNavItem(icon: Icons.insert_chart_outlined_rounded, activeIcon: Icons.insert_chart_rounded, label: 'Reports'),
+              ],
+              selectedIndex: _index,
+              onTap: (i) {
+                debugPrint('[NAV] tab=$i');
+                HapticFeedback.selectionClick();
+                setState(() => _index = i);
+              },
+              accentColor: AppColors.primary,
+              isDark: dark,
+            ),
           ),
         ),
       ),
     );
+  }
+
+  Widget _exitScope(Widget child) {
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _confirmExit(context);
+      },
+      child: child,
+    );
+  }
+
+  Future<void> _confirmExit(BuildContext context) async {
+    final confirmed = await showConfirmDialog(
+      context,
+      title: 'Exit My Rest Admin?',
+      message: 'Are you sure you want to close the app?',
+      confirmLabel: 'Exit',
+      icon: Icons.exit_to_app_rounded,
+      destructive: true,
+    );
+    if (confirmed) SystemNavigator.pop();
   }
 }

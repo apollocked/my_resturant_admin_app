@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../core/theme/app_colors.dart';
 import '../data/admin_repository.dart';
 import '../theme/app_theme.dart';
 
@@ -82,7 +83,7 @@ class _LoginPageState extends State<LoginPage> {
             Positioned(
               bottom: -110,
               left: -80,
-              child: _glow(dark ? const Color(0xFFB15CFF).withValues(alpha: 0.20) : const Color(0xFFB15CFF).withValues(alpha: 0.14), 260),
+              child: _glow(dark ? const Color(0xFFFFA17A).withValues(alpha: 0.20) : const Color(0xFFFFA17A).withValues(alpha: 0.14), 260),
             ),
             SafeArea(
               child: Center(
@@ -115,7 +116,7 @@ class _LoginPageState extends State<LoginPage> {
                                     gradient: const LinearGradient(
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
-                                      colors: [kAccent, Color(0xFFB15CFF)],
+                                      colors: [kAccent, Color(0xFFFF8A5C)],
                                     ),
                                     borderRadius: BorderRadius.circular(22),
                                     boxShadow: [
@@ -129,23 +130,23 @@ class _LoginPageState extends State<LoginPage> {
                                   child: const Icon(Icons.storefront, size: 36, color: Colors.white),
                                 ),
                                 const SizedBox(height: 20),
-                                Text(
-                                  'My Rest Admin',
-                                  style: TextStyle(
-                                    fontSize: 26,
-                                    fontWeight: FontWeight.w800,
-                                    letterSpacing: -0.6,
-                                    color: dark ? Colors.white : const Color(0xFF15161C),
-                                  ),
-                                ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  'Platform control center',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: (dark ? Colors.white : const Color(0xFF15161C)).withValues(alpha: 0.6),
-                                  ),
-                                ),
+                Text(
+                  'My Rest Admin',
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.6,
+                    color: dark ? Colors.white : AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Platform control center',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: (dark ? Colors.white : AppColors.textPrimary).withValues(alpha: 0.6),
+                  ),
+                ),
                                 const SizedBox(height: 28),
                                 TextFormField(
                                   controller: _emailCtrl,

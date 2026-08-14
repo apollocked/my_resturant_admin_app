@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../core/helpers/responsive.dart';
 import '../data/admin_repository.dart';
 import '../models/admin_report.dart';
 import '../theme/app_theme.dart';
 import '../utils/format.dart';
+import '../widgets/shimmer_skeletons.dart';
 
 class ReportsPage extends StatefulWidget {
   const ReportsPage({super.key});
@@ -51,7 +53,7 @@ class _ReportsPageState extends State<ReportsPage> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     if (_loading && _report == null) {
-      return const Center(child: CircularProgressIndicator());
+      return ShimmerListView(itemCount: 4, itemBuilder: () => const ShimmerCard());
     }
     if (_error != null && _report == null) {
       return Center(
@@ -71,7 +73,7 @@ class _ReportsPageState extends State<ReportsPage> {
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+        padding: EdgeInsets.fromLTRB(R.padding(context), 8, R.padding(context), 100),
         children: [
           _header(cs, r),
           const SizedBox(height: 16),
@@ -108,7 +110,7 @@ class _ReportsPageState extends State<ReportsPage> {
             children: [
               Text(
                 'Reports',
-                style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, letterSpacing: -0.6, color: cs.onSurface),
+                style: TextStyle(fontSize: R.fontXxl(context), fontWeight: FontWeight.w800, letterSpacing: -0.6, color: cs.onSurface),
               ),
               const SizedBox(height: 3),
               Text(
@@ -158,20 +160,19 @@ class _ReportsPageState extends State<ReportsPage> {
 
   Widget _statTile(IconData icon, String value, String label, Color color) {
     final cs = Theme.of(context).colorScheme;
-    final dark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: dark ? const Color(0xFF15161C) : Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: (dark ? Colors.white : const Color(0xFF111827)).withValues(alpha: dark ? 0.10 : 0.07)),
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.6)),
       ),
       child: Row(
         children: [
           Container(
             width: 42,
             height: 42,
-            decoration: BoxDecoration(color: color.withValues(alpha: 0.14), borderRadius: BorderRadius.circular(13)),
+            decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(13)),
             child: Icon(icon, size: 21, color: color),
           ),
           const SizedBox(width: 12),
@@ -197,14 +198,13 @@ class _ReportsPageState extends State<ReportsPage> {
   }
 
   Widget _card(ColorScheme cs, Widget child) {
-    final dark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: dark ? const Color(0xFF15161C) : Colors.white,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: (dark ? Colors.white : const Color(0xFF111827)).withValues(alpha: dark ? 0.10 : 0.07)),
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.6)),
       ),
       child: child,
     );
@@ -316,7 +316,7 @@ class _ReportsPageState extends State<ReportsPage> {
                                     gradient: const LinearGradient(
                                       begin: Alignment.bottomCenter,
                                       end: Alignment.topCenter,
-                                      colors: [kAccent, Color(0xFFB15CFF)],
+                                      colors: [kAccent, Color(0xFFFFA17A)],
                                     ),
                                     borderRadius: BorderRadius.vertical(top: Radius.circular(6)),
                                   ),

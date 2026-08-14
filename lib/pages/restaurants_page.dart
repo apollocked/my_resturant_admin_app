@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 
+import '../core/helpers/responsive.dart';
+import '../core/theme/app_colors.dart';
 import '../data/admin_repository.dart';
 import '../models/restaurant_summary.dart';
 import '../theme/app_theme.dart';
 import '../utils/format.dart';
 import '../widgets/add_restaurant_sheet.dart';
+import '../widgets/empty_state.dart';
+import '../widgets/shimmer_skeletons.dart';
 
 class RestaurantsPage extends StatefulWidget {
   const RestaurantsPage({super.key});
@@ -86,7 +90,7 @@ class _RestaurantsPageState extends State<RestaurantsPage> {
   Widget build(BuildContext context) {
     final list = _filtered;
     if (_loading && _restaurants == null) {
-      return const Center(child: CircularProgressIndicator());
+      return ShimmerListView(itemCount: 4, itemBuilder: () => const ShimmerCard());
     }
     if (_error != null && _restaurants == null) {
       return Center(
@@ -113,7 +117,7 @@ class _RestaurantsPageState extends State<RestaurantsPage> {
       body: RefreshIndicator(
         onRefresh: _load,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+          padding: EdgeInsets.fromLTRB(R.padding(context), 8, R.padding(context), 100),
           children: [
             _header(),
             const SizedBox(height: 16),
@@ -143,7 +147,7 @@ class _RestaurantsPageState extends State<RestaurantsPage> {
               Text(
                 'Restaurants',
                 style: TextStyle(
-                  fontSize: 26,
+                  fontSize: R.fontXxl(context),
                   fontWeight: FontWeight.w800,
                   letterSpacing: -0.6,
                   color: cs.onSurface,
@@ -200,13 +204,12 @@ class _RestaurantsPageState extends State<RestaurantsPage> {
 
   Widget _statTile(IconData icon, int value, String label, Color color) {
     final cs = Theme.of(context).colorScheme;
-    final dark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: dark ? const Color(0xFF15161C) : Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: (dark ? Colors.white : const Color(0xFF111827)).withValues(alpha: dark ? 0.10 : 0.07)),
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.6)),
       ),
       child: Row(
         children: [
@@ -214,7 +217,7 @@ class _RestaurantsPageState extends State<RestaurantsPage> {
             width: 42,
             height: 42,
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.14),
+              color: color.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(13),
             ),
             child: Icon(icon, size: 21, color: color),
@@ -258,32 +261,12 @@ class _RestaurantsPageState extends State<RestaurantsPage> {
   }
 
   Widget _emptyState(bool noData) {
-    final cs = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.only(top: 64),
-      child: Column(
-        children: [
-          Container(
-            width: 84,
-            height: 84,
-            decoration: BoxDecoration(
-              color: cs.primaryContainer.withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(28),
-            ),
-            child: Icon(noData ? Icons.storefront_outlined : Icons.search_off_rounded, size: 40, color: cs.primary),
-          ),
-          const SizedBox(height: 18),
-          Text(
-            noData ? 'No restaurants yet' : 'No matches',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: cs.onSurface),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            noData ? 'Tap “Add restaurant” to create the first one.' : 'Try a different search.',
-            style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
-          ),
-        ],
-      ),
+    return EmptyState(
+      icon: noData ? Icons.storefront_outlined : Icons.search_off_rounded,
+      title: noData ? 'No restaurants yet' : 'No matches',
+      subtitle: noData
+          ? 'Tap "Add restaurant" to create the first one.'
+          : 'Try a different search.',
     );
   }
 }
