@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../core/theme/app_colors.dart';
 import '../data/admin_repository.dart';
 import '../theme/app_theme.dart';
+import '../widgets/app_logo.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -109,26 +110,7 @@ class _LoginPageState extends State<LoginPage> {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Container(
-                                  width: 72,
-                                  height: 72,
-                                  decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                      colors: [kAccent, Color(0xFFFF8A5C)],
-                                    ),
-                                    borderRadius: BorderRadius.circular(22),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: kAccent.withValues(alpha: 0.4),
-                                        blurRadius: 22,
-                                        offset: const Offset(0, 8),
-                                      ),
-                                    ],
-                                  ),
-                                  child: const Icon(Icons.storefront, size: 36, color: Colors.white),
-                                ),
+                                const AppLogo(size: 72),
                                 const SizedBox(height: 20),
                 Text(
                   'My Rest Admin',

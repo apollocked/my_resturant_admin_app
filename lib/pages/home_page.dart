@@ -9,6 +9,7 @@ import '../widgets/connectivity_banner.dart';
 import '../widgets/confirm_dialog.dart';
 import '../widgets/liquid_glass_nav_bar.dart';
 import '../widgets/tab_entrance.dart';
+import '../widgets/app_logo.dart';
 import 'promo_codes_page.dart';
 import 'reports_page.dart';
 import 'restaurants_page.dart';
@@ -55,22 +56,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _brand(double size) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [kAccent, Color(0xFFFF8A5C)],
-        ),
-        borderRadius: BorderRadius.circular(size * 0.3),
-        boxShadow: [
-          BoxShadow(color: kAccent.withValues(alpha: 0.35), blurRadius: 14, offset: const Offset(0, 4)),
-        ],
-      ),
-      child: Icon(Icons.storefront, size: size * 0.55, color: Colors.white),
-    );
+    return AppLogo(size: size, borderRadiusFactor: 0.3);
   }
 
   @override
