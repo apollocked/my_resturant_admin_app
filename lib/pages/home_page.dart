@@ -56,7 +56,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _brand(double size) {
-    return AppLogo(size: size, borderRadiusFactor: 0.3);
+    return AppLogo(size: size);
   }
 
   @override

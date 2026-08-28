@@ -110,7 +110,7 @@ class _LoginPageState extends State<LoginPage> {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const AppLogo(size: 72),
+                                const AppLogo(size: 110),
                                 const SizedBox(height: 20),
                 Text(
                   'My Rest Admin',
