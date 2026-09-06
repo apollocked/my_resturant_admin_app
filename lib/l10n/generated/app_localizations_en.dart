@@ -91,6 +91,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statExpiring => 'Expiring ≤30d';
 
   @override
+  String get statOrders => 'Orders';
+
+  @override
   String get searchByEmail => 'Search by email…';
 
   @override

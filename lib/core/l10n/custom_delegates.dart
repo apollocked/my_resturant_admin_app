@@ -1,8 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-import '../../l10n/generated/app_localizations.dart';
 import 'locale_controller.dart';
 
 /// Kurdish (ckb) has no built-in Material/Cupertino translations in Flutter,
@@ -17,8 +17,7 @@ class KurdishMaterialLocalizationsDelegate
 
   @override
   Future<MaterialLocalizations> load(Locale locale) {
-    final target =
-        locale.languageCode == 'ckb' ? const Locale('ar') : locale;
+    final target = locale.languageCode == 'ckb' ? const Locale('ar') : locale;
     return GlobalMaterialLocalizations.delegate.load(target);
   }
 
@@ -37,8 +36,7 @@ class KurdishCupertinoLocalizationsDelegate
 
   @override
   Future<CupertinoLocalizations> load(Locale locale) {
-    final target =
-        locale.languageCode == 'ckb' ? const Locale('ar') : locale;
+    final target = locale.languageCode == 'ckb' ? const Locale('ar') : locale;
     return GlobalCupertinoLocalizations.delegate.load(target);
   }
 
@@ -48,7 +46,7 @@ class KurdishCupertinoLocalizationsDelegate
 }
 
 /// Provides text direction for the app's locales. Kurdish (ckb) is RTL.
-class KurdishWidgetsLocalizations implements WidgetsLocalizations {
+class KurdishWidgetsLocalizations extends DefaultWidgetsLocalizations {
   const KurdishWidgetsLocalizations(this.textDirection);
 
   @override
@@ -73,6 +71,5 @@ class KurdishWidgetsLocalizationsDelegate
   }
 
   @override
-  bool shouldReload(covariant KurdishWidgetsLocalizationsDelegate old) =>
-      false;
+  bool shouldReload(covariant KurdishWidgetsLocalizationsDelegate old) => false;
 }

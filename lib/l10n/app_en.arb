@@ -37,6 +37,7 @@
   "statActivated": "Activated",
   "statActiveSubs": "Active subs",
   "statExpiring": "Expiring ≤30d",
+  "statOrders": "Orders",
   "searchByEmail": "Search by email…",
   "noRestaurantsYet": "No restaurants yet",
   "noMatches": "No matches",

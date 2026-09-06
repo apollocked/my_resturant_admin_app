@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/helpers/responsive.dart';
 import '../data/admin_repository.dart';
+import '../l10n/generated/app_localizations.dart';
 import '../models/admin_report.dart';
 import '../theme/app_theme.dart';
 import '../utils/format.dart';
@@ -52,8 +53,12 @@ class _ReportsPageState extends State<ReportsPage> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
     if (_loading && _report == null) {
-      return ShimmerListView(itemCount: 4, itemBuilder: () => const ShimmerCard());
+      return ShimmerListView(
+        itemCount: 4,
+        itemBuilder: () => const ShimmerCard(),
+      );
     }
     if (_error != null && _report == null) {
       return Center(
@@ -62,9 +67,9 @@ class _ReportsPageState extends State<ReportsPage> {
           children: [
             const Icon(Icons.cloud_off_rounded, size: 48, color: kDanger),
             const SizedBox(height: 12),
-            const Text('Failed to load reports'),
+            Text(l10n.failedToLoadReports),
             const SizedBox(height: 12),
-            OutlinedButton(onPressed: _load, child: const Text('Retry')),
+            OutlinedButton(onPressed: _load, child: Text(l10n.retry)),
           ],
         ),
       );
@@ -73,34 +78,39 @@ class _ReportsPageState extends State<ReportsPage> {
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
-        padding: EdgeInsets.fromLTRB(R.padding(context), 8, R.padding(context), 100),
+        padding: EdgeInsets.fromLTRB(
+          R.padding(context),
+          8,
+          R.padding(context),
+          100,
+        ),
         children: [
-          _header(cs, r),
+          _header(cs, r, l10n),
           const SizedBox(height: 16),
-          _statGrid(r),
+          _statGrid(r, l10n),
           const SizedBox(height: 20),
-          _statusCard(r),
+          _statusCard(r, l10n),
           const SizedBox(height: 14),
-          _trendCard(r),
+          _trendCard(r, l10n),
           const SizedBox(height: 14),
-          _topItemsCard(r),
+          _topItemsCard(r, l10n),
           const SizedBox(height: 20),
-          _sectionTitle(cs, 'Per restaurant'),
+          _sectionTitle(cs, l10n.perRestaurant),
           const SizedBox(height: 10),
           if (r.restaurants.isEmpty)
-            _emptyNote(cs, 'No restaurant accounts yet.')
+            _emptyNote(cs, l10n.noRestaurantAccounts)
           else
             ...r.restaurants.map((x) => _RestaurantCard(x: x)),
           const SizedBox(height: 20),
-          _sectionTitle(cs, 'Accounts & promo codes'),
+          _sectionTitle(cs, l10n.accountsAndPromoCodes),
           const SizedBox(height: 10),
-          _activityCard(r),
+          _activityCard(r, l10n),
         ],
       ),
     );
   }
 
-  Widget _header(ColorScheme cs, AdminReport r) {
+  Widget _header(ColorScheme cs, AdminReport r, AppLocalizations l10n) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
@@ -109,12 +119,17 @@ class _ReportsPageState extends State<ReportsPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Reports',
-                style: TextStyle(fontSize: R.fontXxl(context), fontWeight: FontWeight.w800, letterSpacing: -0.6, color: cs.onSurface),
+                l10n.reportsTitle,
+                style: TextStyle(
+                  fontSize: R.fontXxl(context),
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.6,
+                  color: cs.onSurface,
+                ),
               ),
               const SizedBox(height: 3),
               Text(
-                'Updated ${formatDateShort(r.generatedAt)}',
+                l10n.updatedOn(formatDateShortL10n(r.generatedAt, l10n)),
                 style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
               ),
             ],
@@ -123,7 +138,10 @@ class _ReportsPageState extends State<ReportsPage> {
         Container(
           width: 10,
           height: 10,
-          decoration: const BoxDecoration(color: kSuccess, shape: BoxShape.circle),
+          decoration: const BoxDecoration(
+            color: kSuccess,
+            shape: BoxShape.circle,
+          ),
         ),
       ],
     );
@@ -132,26 +150,59 @@ class _ReportsPageState extends State<ReportsPage> {
   Widget _sectionTitle(ColorScheme cs, String text) {
     return Text(
       text,
-      style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, letterSpacing: -0.3, color: cs.onSurface),
+      style: TextStyle(
+        fontSize: 17,
+        fontWeight: FontWeight.w800,
+        letterSpacing: -0.3,
+        color: cs.onSurface,
+      ),
     );
   }
 
-  Widget _statGrid(AdminReport r) {
+  Widget _statGrid(AdminReport r, AppLocalizations l10n) {
     return Column(
       children: [
         Row(
           children: [
-            Expanded(child: _statTile(Icons.storefront_rounded, '${r.accounts.total}', 'Restaurants', kAccent)),
+            Expanded(
+              child: _statTile(
+                Icons.storefront_rounded,
+                '${r.accounts.total}',
+                l10n.tabRestaurants,
+                kAccent,
+              ),
+            ),
             const SizedBox(width: 12),
-            Expanded(child: _statTile(Icons.receipt_long_rounded, '${r.orders.total}', 'Orders', kInfo)),
+            Expanded(
+              child: _statTile(
+                Icons.receipt_long_rounded,
+                '${r.orders.total}',
+                l10n.statOrders,
+                kInfo,
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 12),
         Row(
           children: [
-            Expanded(child: _statTile(Icons.payments_outlined, formatCompact(r.orders.revenue), 'Revenue', kSuccess)),
+            Expanded(
+              child: _statTile(
+                Icons.payments_outlined,
+                formatCompact(r.orders.revenue),
+                l10n.revenue,
+                kSuccess,
+              ),
+            ),
             const SizedBox(width: 12),
-            Expanded(child: _statTile(Icons.shopping_basket_outlined, '${r.orders.items}', 'Items sold', kWarning)),
+            Expanded(
+              child: _statTile(
+                Icons.shopping_basket_outlined,
+                '${r.orders.items}',
+                l10n.itemsSold,
+                kWarning,
+              ),
+            ),
           ],
         ),
       ],
@@ -172,7 +223,10 @@ class _ReportsPageState extends State<ReportsPage> {
           Container(
             width: 42,
             height: 42,
-            decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(13)),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(13),
+            ),
             child: Icon(icon, size: 21, color: color),
           ),
           const SizedBox(width: 12),
@@ -182,13 +236,22 @@ class _ReportsPageState extends State<ReportsPage> {
               children: [
                 FittedBox(
                   fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
+                  alignment: AlignmentDirectional.centerStart,
                   child: Text(
                     value,
-                    style: TextStyle(fontSize: 19, fontWeight: FontWeight.w800, letterSpacing: -0.4, color: cs.onSurface),
+                    style: TextStyle(
+                      fontSize: 19,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.4,
+                      color: cs.onSurface,
+                    ),
                   ),
                 ),
-                Text(label, style: TextStyle(fontSize: 11.5, color: cs.onSurfaceVariant), overflow: TextOverflow.ellipsis),
+                Text(
+                  label,
+                  style: TextStyle(fontSize: 11.5, color: cs.onSurfaceVariant),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ],
             ),
           ),
@@ -210,36 +273,63 @@ class _ReportsPageState extends State<ReportsPage> {
     );
   }
 
-  Widget _cardTitle(ColorScheme cs, IconData icon, String text, {Widget? trailing}) {
+  Widget _cardTitle(
+    ColorScheme cs,
+    IconData icon,
+    String text, {
+    Widget? trailing,
+  }) {
     return Row(
       children: [
         Icon(icon, size: 17, color: kAccent),
         const SizedBox(width: 8),
         Expanded(
-          child: Text(text, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: cs.onSurface)),
+          child: Text(
+            text,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w800,
+              color: cs.onSurface,
+            ),
+          ),
         ),
         ?trailing,
       ],
     );
   }
 
-  Widget _statusCard(AdminReport r) {
+  Widget _statusCard(AdminReport r, AppLocalizations l10n) {
     final cs = Theme.of(context).colorScheme;
     final total = r.orders.total;
     final rows = [
-      ('Served', r.orders.served, kSuccess, Icons.check_circle_rounded),
-      ('Preparing', r.orders.preparing, kInfo, Icons.local_dining_rounded),
-      ('Pending', r.orders.pending, kWarning, Icons.schedule_rounded),
+      (l10n.statusServed, r.orders.served, kSuccess, Icons.check_circle_rounded),
+      (l10n.statusPreparing, r.orders.preparing, kInfo, Icons.local_dining_rounded),
+      (l10n.statusPending, r.orders.pending, kWarning, Icons.schedule_rounded),
     ];
     return _card(
       cs,
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _cardTitle(cs, Icons.assessment_rounded, 'Orders by status', trailing: Text('$total total', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: cs.onSurfaceVariant))),
+          _cardTitle(
+            cs,
+            Icons.assessment_rounded,
+            l10n.ordersByStatus,
+            trailing: Text(
+              l10n.totalCount(total),
+              style: TextStyle(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w700,
+                color: cs.onSurfaceVariant,
+              ),
+            ),
+          ),
           const SizedBox(height: 16),
           if (total == 0)
-            Text('No orders yet.', style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant))
+            Text(
+              l10n.noOrdersYet,
+              style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
+            )
           else
             ...rows.map((row) {
               final (label, count, color, icon) = row;
@@ -253,9 +343,23 @@ class _ReportsPageState extends State<ReportsPage> {
                       children: [
                         Icon(icon, size: 15, color: color),
                         const SizedBox(width: 8),
-                        Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: cs.onSurface)),
+                        Text(
+                          label,
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: cs.onSurface,
+                          ),
+                        ),
                         const Spacer(),
-                        Text('$count · ${(frac * 100).round()}%', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: cs.onSurfaceVariant)),
+                        Text(
+                          '$count · ${(frac * 100).round()}%',
+                          style: TextStyle(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w700,
+                            color: cs.onSurfaceVariant,
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 8),
@@ -264,7 +368,9 @@ class _ReportsPageState extends State<ReportsPage> {
                       child: LinearProgressIndicator(
                         value: frac,
                         minHeight: 8,
-                        backgroundColor: cs.outlineVariant.withValues(alpha: 0.35),
+                        backgroundColor: cs.outlineVariant.withValues(
+                          alpha: 0.35,
+                        ),
                         valueColor: AlwaysStoppedAnimation(color),
                       ),
                     ),
@@ -277,7 +383,7 @@ class _ReportsPageState extends State<ReportsPage> {
     );
   }
 
-  Widget _trendCard(AdminReport r) {
+  Widget _trendCard(AdminReport r, AppLocalizations l10n) {
     final cs = Theme.of(context).colorScheme;
     final days = r.orders.byDay;
     final maxOrders = days.fold<int>(0, (m, d) => d.orders > m ? d.orders : m);
@@ -286,10 +392,13 @@ class _ReportsPageState extends State<ReportsPage> {
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _cardTitle(cs, Icons.bar_chart_rounded, 'Orders — last 14 days'),
+          _cardTitle(cs, Icons.bar_chart_rounded, l10n.ordersLast14Days),
           const SizedBox(height: 18),
           if (days.isEmpty || maxOrders == 0)
-            Text('No orders yet.', style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant))
+            Text(
+              l10n.noOrdersYet,
+              style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
+            )
           else
             SizedBox(
               height: 130,
@@ -304,7 +413,14 @@ class _ReportsPageState extends State<ReportsPage> {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           if (d.orders > 0)
-                            Text('${d.orders}', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: cs.onSurfaceVariant)),
+                            Text(
+                              '${d.orders}',
+                              style: TextStyle(
+                                fontSize: 9,
+                                fontWeight: FontWeight.w700,
+                                color: cs.onSurfaceVariant,
+                              ),
+                            ),
                           const SizedBox(height: 3),
                           Expanded(
                             child: Align(
@@ -318,14 +434,22 @@ class _ReportsPageState extends State<ReportsPage> {
                                       end: Alignment.topCenter,
                                       colors: [kAccent, Color(0xFFFFA17A)],
                                     ),
-                                    borderRadius: BorderRadius.vertical(top: Radius.circular(6)),
+                                    borderRadius: BorderRadius.vertical(
+                                      top: Radius.circular(6),
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
                           ),
                           const SizedBox(height: 6),
-                          Text('${d.day.day}', style: TextStyle(fontSize: 9, color: cs.onSurfaceVariant)),
+                          Text(
+                            '${d.day.day}',
+                            style: TextStyle(
+                              fontSize: 9,
+                              color: cs.onSurfaceVariant,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -338,7 +462,7 @@ class _ReportsPageState extends State<ReportsPage> {
     );
   }
 
-  Widget _topItemsCard(AdminReport r) {
+  Widget _topItemsCard(AdminReport r, AppLocalizations l10n) {
     final cs = Theme.of(context).colorScheme;
     final items = r.topItems;
     final maxQty = items.fold<int>(0, (m, i) => i.qty > m ? i.qty : m);
@@ -347,10 +471,17 @@ class _ReportsPageState extends State<ReportsPage> {
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _cardTitle(cs, Icons.emoji_food_beverage_rounded, 'Top selling items'),
+          _cardTitle(
+            cs,
+            Icons.emoji_food_beverage_rounded,
+            l10n.topSellingItems,
+          ),
           const SizedBox(height: 14),
           if (items.isEmpty)
-            Text('No orders yet.', style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant))
+            Text(
+              l10n.noOrdersYet,
+              style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
+            )
           else
             ...items.indexed.map((entry) {
               final (index, item) = entry;
@@ -363,7 +494,9 @@ class _ReportsPageState extends State<ReportsPage> {
                       width: 30,
                       height: 30,
                       decoration: BoxDecoration(
-                        color: index < 3 ? kAccent.withValues(alpha: 0.14) : cs.outlineVariant.withValues(alpha: 0.35),
+                        color: index < 3
+                            ? kAccent.withValues(alpha: 0.14)
+                            : cs.outlineVariant.withValues(alpha: 0.35),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       alignment: Alignment.center,
@@ -381,15 +514,27 @@ class _ReportsPageState extends State<ReportsPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(item.name, style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: cs.onSurface), overflow: TextOverflow.ellipsis),
+                          Text(
+                            item.name,
+                            style: TextStyle(
+                              fontSize: 13.5,
+                              fontWeight: FontWeight.w700,
+                              color: cs.onSurface,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
                           const SizedBox(height: 5),
                           ClipRRect(
                             borderRadius: BorderRadius.circular(4),
                             child: LinearProgressIndicator(
                               value: frac,
                               minHeight: 5,
-                              backgroundColor: cs.outlineVariant.withValues(alpha: 0.35),
-                              valueColor: AlwaysStoppedAnimation(index < 3 ? kAccent : cs.outlineVariant),
+                              backgroundColor: cs.outlineVariant.withValues(
+                                alpha: 0.35,
+                              ),
+                              valueColor: AlwaysStoppedAnimation(
+                                index < 3 ? kAccent : cs.outlineVariant,
+                              ),
                             ),
                           ),
                         ],
@@ -399,8 +544,21 @@ class _ReportsPageState extends State<ReportsPage> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Text('${item.qty}×', style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w800, color: cs.onSurface)),
-                        Text(formatCompact(item.revenue), style: TextStyle(fontSize: 11.5, color: cs.onSurfaceVariant)),
+                        Text(
+                          '${item.qty}×',
+                          style: TextStyle(
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.w800,
+                            color: cs.onSurface,
+                          ),
+                        ),
+                        Text(
+                          formatCompact(item.revenue),
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            color: cs.onSurfaceVariant,
+                          ),
+                        ),
                       ],
                     ),
                   ],
@@ -412,7 +570,7 @@ class _ReportsPageState extends State<ReportsPage> {
     );
   }
 
-  Widget _activityCard(AdminReport r) {
+  Widget _activityCard(AdminReport r, AppLocalizations l10n) {
     final cs = Theme.of(context).colorScheme;
     final a = r.accounts;
     final p = r.promos;
@@ -421,25 +579,25 @@ class _ReportsPageState extends State<ReportsPage> {
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _cardTitle(cs, Icons.people_outline_rounded, 'Accounts'),
+          _cardTitle(cs, Icons.people_outline_rounded, l10n.accounts),
           const SizedBox(height: 14),
-          _metricRow(cs, 'Activated', '${a.activated}', kSuccess),
-          _metricRow(cs, 'Not activated', '${a.notActivated}', kWarning),
-          _metricRow(cs, 'Joined last 30d', '${a.joined30d}', kInfo),
-          _metricRow(cs, 'Joined last 90d', '${a.joined90d}', kInfo),
-          _metricRow(cs, 'Admin PIN set', '${a.withAdminPin}', kAccent),
-          _metricRow(cs, 'Waiter PIN set', '${a.withWaiterPin}', kAccent),
-          _metricRow(cs, 'Kitchen PIN set', '${a.withKitchenPin}', kAccent),
+          _metricRow(cs, l10n.statActivated, '${a.activated}', kSuccess),
+          _metricRow(cs, l10n.statusNotActivated, '${a.notActivated}', kWarning),
+          _metricRow(cs, l10n.joinedLast30d, '${a.joined30d}', kInfo),
+          _metricRow(cs, l10n.joinedLast90d, '${a.joined90d}', kInfo),
+          _metricRow(cs, l10n.pinSet(l10n.roleAdmin), '${a.withAdminPin}', kAccent),
+          _metricRow(cs, l10n.pinSet(l10n.roleWaiter), '${a.withWaiterPin}', kAccent),
+          _metricRow(cs, l10n.pinSet(l10n.roleKitchen), '${a.withKitchenPin}', kAccent),
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 6),
             child: Divider(height: 1),
           ),
-          _cardTitle(cs, Icons.vpn_key_rounded, 'Promo codes'),
+          _cardTitle(cs, Icons.vpn_key_rounded, l10n.promoCodes),
           const SizedBox(height: 14),
-          _metricRow(cs, 'Available', '${p.available}', kInfo),
-          _metricRow(cs, 'Used', '${p.used}', kSuccess),
-          _metricRow(cs, 'Expired', '${p.expired}', kDanger),
-          _metricRow(cs, 'Expiring in 30d', '${p.expiring30d}', kWarning),
+          _metricRow(cs, l10n.statusAvailable, '${p.available}', kInfo),
+          _metricRow(cs, l10n.statusUsed, '${p.used}', kSuccess),
+          _metricRow(cs, l10n.statusExpired, '${p.expired}', kDanger),
+          _metricRow(cs, l10n.expiringIn30d, '${p.expiring30d}', kWarning),
         ],
       ),
     );
@@ -450,12 +608,29 @@ class _ReportsPageState extends State<ReportsPage> {
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          Container(width: 8, height: 8, decoration: BoxDecoration(color: color.withValues(alpha: 0.6), shape: BoxShape.circle)),
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.6),
+              shape: BoxShape.circle,
+            ),
+          ),
           const SizedBox(width: 10),
           Expanded(
-            child: Text(label, style: TextStyle(fontSize: 13.5, color: cs.onSurfaceVariant)),
+            child: Text(
+              label,
+              style: TextStyle(fontSize: 13.5, color: cs.onSurfaceVariant),
+            ),
           ),
-          Text(value, style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w800, color: cs.onSurface)),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 13.5,
+              fontWeight: FontWeight.w800,
+              color: cs.onSurface,
+            ),
+          ),
         ],
       ),
     );
@@ -465,7 +640,10 @@ class _ReportsPageState extends State<ReportsPage> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 24),
       child: Center(
-        child: Text(text, style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant)),
+        child: Text(
+          text,
+          style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
+        ),
       ),
     );
   }
@@ -478,10 +656,19 @@ class _RestaurantCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
     final remaining = x.promoExpires?.difference(DateTime.now()).inDays;
     final isExpired = remaining != null && remaining <= 0;
-    final statusColor = !x.activated ? kWarning : isExpired ? kDanger : kSuccess;
-    final statusLabel = !x.activated ? 'Not activated' : isExpired ? 'Expired' : 'Active';
+    final statusColor = !x.activated
+        ? kWarning
+        : isExpired
+        ? kDanger
+        : kSuccess;
+    final statusLabel = !x.activated
+        ? l10n.statusNotActivated
+        : isExpired
+        ? l10n.statusExpired
+        : l10n.statusActive;
     final color = colorForEmail(x.email);
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -506,7 +693,11 @@ class _RestaurantCard extends StatelessWidget {
                   alignment: Alignment.center,
                   child: Text(
                     avatarInitials(x.email),
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 15),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 15,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -514,11 +705,23 @@ class _RestaurantCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(x.email, style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w700), overflow: TextOverflow.ellipsis),
+                      Text(
+                        x.email,
+                        style: const TextStyle(
+                          fontSize: 14.5,
+                          fontWeight: FontWeight.w700,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                       const SizedBox(height: 3),
                       Text(
-                        '${formatDateShort(x.joined)}${x.promoCode != null ? '  •  code ${x.promoCode}' : ''}',
-                        style: TextStyle(fontSize: 11.5, color: cs.onSurfaceVariant),
+                        x.promoCode == null
+                            ? formatDateShortL10n(x.joined, l10n)
+                            : '${formatDateShortL10n(x.joined, l10n)}  •  ${l10n.codeWord} ${x.promoCode}',
+                        style: TextStyle(
+                          fontSize: 11.5,
+                          color: cs.onSurfaceVariant,
+                        ),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
@@ -526,14 +729,34 @@ class _RestaurantCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(color: statusColor.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(30)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: statusColor.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(30),
+                  ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Container(width: 7, height: 7, decoration: BoxDecoration(color: statusColor, shape: BoxShape.circle)),
+                      Container(
+                        width: 7,
+                        height: 7,
+                        decoration: BoxDecoration(
+                          color: statusColor,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
                       const SizedBox(width: 6),
-                      Text(statusLabel, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: statusColor)),
+                      Text(
+                        statusLabel,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: statusColor,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -542,23 +765,67 @@ class _RestaurantCard extends StatelessWidget {
             const SizedBox(height: 14),
             Row(
               children: [
-                Expanded(child: _valueBox(cs, Icons.receipt_long_rounded, '${x.orders}', 'Orders', kInfo)),
+                Expanded(
+                  child: _valueBox(
+                    cs,
+                    Icons.receipt_long_rounded,
+                    '${x.orders}',
+                    l10n.statOrders,
+                    kInfo,
+                  ),
+                ),
                 const SizedBox(width: 10),
-                Expanded(child: _valueBox(cs, Icons.payments_outlined, formatCompact(x.revenue), 'Revenue', kSuccess)),
+                Expanded(
+                  child: _valueBox(
+                    cs,
+                    Icons.payments_outlined,
+                    formatCompact(x.revenue),
+                    l10n.revenue,
+                    kSuccess,
+                  ),
+                ),
                 const SizedBox(width: 10),
-                Expanded(child: _valueBox(cs, Icons.shopping_basket_outlined, '${x.items}', 'Items', kWarning)),
+                Expanded(
+                  child: _valueBox(
+                    cs,
+                    Icons.shopping_basket_outlined,
+                    '${x.items}',
+                    l10n.items,
+                    kWarning,
+                  ),
+                ),
                 const SizedBox(width: 10),
-                Expanded(child: _valueBox(cs, Icons.trending_up_rounded, formatCompact(x.avgOrderValue), 'Avg order', kAccent)),
+                Expanded(
+                  child: _valueBox(
+                    cs,
+                    Icons.trending_up_rounded,
+                    formatCompact(x.avgOrderValue),
+                    l10n.avgOrder,
+                    kAccent,
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 10),
             Row(
               children: [
-                _miniChip(cs, '${x.recipes} recipes', Icons.restaurant_menu_rounded),
+                _miniChip(
+                  cs,
+                  '${x.recipes} ${l10n.recipes}',
+                  Icons.restaurant_menu_rounded,
+                ),
                 const SizedBox(width: 8),
-                _miniChip(cs, '${x.pinAdmin ? 'Admin' : 'No'} PIN', Icons.admin_panel_settings_outlined),
+                _miniChip(
+                  cs,
+                  x.pinAdmin ? l10n.adminPin : l10n.noPin,
+                  Icons.admin_panel_settings_outlined,
+                ),
                 const SizedBox(width: 8),
-                _miniChip(cs, '${x.pinWaiter ? 'Waiter' : 'No'} PIN', Icons.room_service_outlined),
+                _miniChip(
+                  cs,
+                  x.pinWaiter ? l10n.waiterPin : l10n.noPin,
+                  Icons.room_service_outlined,
+                ),
               ],
             ),
           ],
@@ -567,7 +834,13 @@ class _RestaurantCard extends StatelessWidget {
     );
   }
 
-  Widget _valueBox(ColorScheme cs, IconData icon, String value, String label, Color color) {
+  Widget _valueBox(
+    ColorScheme cs,
+    IconData icon,
+    String value,
+    String label,
+    Color color,
+  ) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -582,15 +855,27 @@ class _RestaurantCard extends StatelessWidget {
               Icon(icon, size: 14, color: color),
               const SizedBox(width: 5),
               Expanded(
-                child: Text(label, style: TextStyle(fontSize: 10.5, color: cs.onSurfaceVariant), overflow: TextOverflow.ellipsis),
+                child: Text(
+                  label,
+                  style: TextStyle(fontSize: 10.5, color: cs.onSurfaceVariant),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ],
           ),
           const SizedBox(height: 6),
           FittedBox(
             fit: BoxFit.scaleDown,
-            alignment: Alignment.centerLeft,
-            child: Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, letterSpacing: -0.3, color: cs.onSurface)),
+            alignment: AlignmentDirectional.centerStart,
+            child: Text(
+              value,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.3,
+                color: cs.onSurface,
+              ),
+            ),
           ),
         ],
       ),
@@ -609,7 +894,14 @@ class _RestaurantCard extends StatelessWidget {
         children: [
           Icon(icon, size: 13, color: cs.onSurfaceVariant),
           const SizedBox(width: 5),
-          Text(text, style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: cs.onSurfaceVariant)),
+          Text(
+            text,
+            style: TextStyle(
+              fontSize: 11.5,
+              fontWeight: FontWeight.w600,
+              color: cs.onSurfaceVariant,
+            ),
+          ),
         ],
       ),
     );

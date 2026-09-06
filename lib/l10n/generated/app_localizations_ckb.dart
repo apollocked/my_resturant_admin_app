@@ -93,6 +93,9 @@ class AppLocalizationsCkb extends AppLocalizations {
   String get statExpiring => 'بەسەرچوون ≤٣٠ ڕۆژ';
 
   @override
+  String get statOrders => 'داوەکان';
+
+  @override
   String get searchByEmail => 'گەڕان بە ئیمەیڵ…';
 
   @override

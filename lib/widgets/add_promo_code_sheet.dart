@@ -137,7 +137,7 @@ class _AddPromoCodeSheetState extends State<AddPromoCodeSheet> {
               ),
               const SizedBox(height: 8),
               Text(
-                l10n.leaveEmptyToAutoGenerate,
+                l10n.autoGenerateHint,
                 style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 20),

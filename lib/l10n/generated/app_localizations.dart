@@ -254,6 +254,12 @@ abstract class AppLocalizations {
   /// **'Expiring ≤30d'**
   String get statExpiring;
 
+  /// No description provided for @statOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders'**
+  String get statOrders;
+
   /// No description provided for @searchByEmail.
   ///
   /// In en, this message translates to:
