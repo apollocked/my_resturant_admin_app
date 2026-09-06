@@ -193,7 +193,6 @@ class _HomePageState extends State<HomePage> {
       SafeArea(
         child: ConnectivityBanner(
           child: Scaffold(
-            extendBody: true,
             appBar: AppBar(
               title: Row(
                 children: [
