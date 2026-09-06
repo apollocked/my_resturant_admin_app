@@ -175,6 +175,12 @@
   "languageEnglish": "English",
   "languageKurdish": "Kurdî",
 
+  "theme": "Theme",
+  "themeSubtitle": "Apply the app to your preference",
+  "themeSystem": "System default",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+
   "monthJan": "Jan",
   "monthFeb": "Feb",
   "monthMar": "Mar",

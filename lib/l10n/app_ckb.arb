@@ -175,6 +175,12 @@
   "languageEnglish": "Englіsh",
   "languageKurdish": "کوردی",
 
+  "theme": "دیمەن",
+  "themeSubtitle": "خۆشەویستەکەی خۆت بۆ دیمەنی ئەپەکە هەڵبژێرە",
+  "themeSystem": "بنەمای سیستەم",
+  "themeLight": "ڕووناک",
+  "themeDark": "تاریک",
+
   "monthJan": "کانوونی دووەم",
   "monthFeb": "شوبات",
   "monthMar": "ئازار",

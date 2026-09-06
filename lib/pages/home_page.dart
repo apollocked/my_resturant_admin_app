@@ -12,6 +12,7 @@ import '../widgets/confirm_dialog.dart';
 import '../widgets/language_switcher.dart';
 import '../widgets/liquid_glass_nav_bar.dart';
 import '../widgets/tab_entrance.dart';
+import '../widgets/theme_switcher.dart';
 import 'promo_codes_page.dart';
 import 'reports_page.dart';
 import 'restaurants_page.dart';
@@ -125,7 +126,9 @@ class _HomePageState extends State<HomePage> {
                     },
                     labelType: NavigationRailLabelType.all,
                     backgroundColor: Theme.of(context).colorScheme.surface,
-                    indicatorColor: AppColors.primarySoft,
+                    indicatorColor: dark
+                        ? AppColors.primary.withValues(alpha: 0.20)
+                        : AppColors.primarySoft,
                     leading: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       child: Column(
@@ -169,10 +172,18 @@ class _HomePageState extends State<HomePage> {
                         alignment: Alignment.bottomCenter,
                         child: Padding(
                           padding: const EdgeInsets.only(bottom: 16),
-                          child: IconButton(
-                            tooltip: l10n.signOut,
-                            onPressed: _confirmSignOut,
-                            icon: const Icon(Icons.logout_rounded),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const ThemeSwitcher(),
+                              const LanguageSwitcher(),
+                              const SizedBox(height: 4),
+                              IconButton(
+                                tooltip: l10n.signOut,
+                                onPressed: _confirmSignOut,
+                                icon: const Icon(Icons.logout_rounded),
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -206,6 +217,7 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
               actions: [
+                const ThemeSwitcher(),
                 const LanguageSwitcher(),
                 IconButton(
                   tooltip: l10n.signOut,

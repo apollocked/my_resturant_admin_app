@@ -439,6 +439,21 @@ class AppLocalizationsCkb extends AppLocalizations {
   String get languageKurdish => 'کوردی';
 
   @override
+  String get theme => 'دیمەن';
+
+  @override
+  String get themeSubtitle => 'خۆشەویستەکەی خۆت بۆ دیمەنی ئەپەکە هەڵبژێرە';
+
+  @override
+  String get themeSystem => 'بنەمای سیستەم';
+
+  @override
+  String get themeLight => 'ڕووناک';
+
+  @override
+  String get themeDark => 'تاریک';
+
+  @override
   String get monthJan => 'کانوونی دووەم';
 
   @override

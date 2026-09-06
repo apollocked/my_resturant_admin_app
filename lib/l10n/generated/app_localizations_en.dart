@@ -435,6 +435,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get languageKurdish => 'Kurdî';
 
   @override
+  String get theme => 'Theme';
+
+  @override
+  String get themeSubtitle => 'Apply the app to your preference';
+
+  @override
+  String get themeSystem => 'System default';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeDark => 'Dark';
+
+  @override
   String get monthJan => 'Jan';
 
   @override

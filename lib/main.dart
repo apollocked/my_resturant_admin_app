@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'config/supabase_config.dart';
 import 'core/l10n/custom_delegates.dart';
 import 'core/l10n/locale_controller.dart';
+import 'core/theme/theme_controller.dart';
 import 'l10n/generated/app_localizations.dart';
 import 'pages/home_page.dart';
 import 'pages/login_page.dart';
@@ -16,6 +17,7 @@ Future<void> main() async {
     url: SupabaseConfig.url,
     publishableKey: SupabaseConfig.anonKey,
   );
+  await ThemeController.instance.load();
   await LocaleController.instance.load();
   runApp(const MyRestAdminApp());
 }
@@ -28,21 +30,26 @@ class MyRestAdminApp extends StatelessWidget {
     return ValueListenableBuilder<Locale>(
       valueListenable: LocaleController.instance.locale,
       builder: (context, locale, _) {
-        return MaterialApp(
-          title: 'My Rest Admin',
-          debugShowCheckedModeBanner: false,
-          theme: buildTheme(Brightness.light),
-          darkTheme: buildTheme(Brightness.dark),
-          themeMode: ThemeMode.system,
-          locale: locale,
-          supportedLocales: AppLocalizations.supportedLocales,
-          localizationsDelegates: const [
-            AppLocalizations.delegate,
-            KurdishMaterialLocalizationsDelegate(),
-            KurdishCupertinoLocalizationsDelegate(),
-            KurdishWidgetsLocalizationsDelegate(),
-          ],
-          home: const AuthGate(),
+        return ValueListenableBuilder<ThemeMode>(
+          valueListenable: ThemeController.instance.mode,
+          builder: (context, mode, _) {
+            return MaterialApp(
+              title: 'My Rest Admin',
+              debugShowCheckedModeBanner: false,
+              theme: buildTheme(Brightness.light),
+              darkTheme: buildTheme(Brightness.dark),
+              themeMode: mode,
+              locale: locale,
+              supportedLocales: AppLocalizations.supportedLocales,
+              localizationsDelegates: const [
+                AppLocalizations.delegate,
+                KurdishMaterialLocalizationsDelegate(),
+                KurdishCupertinoLocalizationsDelegate(),
+                KurdishWidgetsLocalizationsDelegate(),
+              ],
+              home: const AuthGate(),
+            );
+          },
         );
       },
     );
