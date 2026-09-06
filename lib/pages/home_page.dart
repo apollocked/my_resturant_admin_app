@@ -4,12 +4,14 @@ import 'package:flutter/services.dart';
 import '../core/helpers/responsive.dart';
 import '../core/theme/app_colors.dart';
 import '../data/admin_repository.dart';
+import '../l10n/generated/app_localizations.dart';
 import '../theme/app_theme.dart';
+import '../widgets/app_logo.dart';
 import '../widgets/connectivity_banner.dart';
 import '../widgets/confirm_dialog.dart';
+import '../widgets/language_switcher.dart';
 import '../widgets/liquid_glass_nav_bar.dart';
 import '../widgets/tab_entrance.dart';
-import '../widgets/app_logo.dart';
 import 'promo_codes_page.dart';
 import 'reports_page.dart';
 import 'restaurants_page.dart';
@@ -44,11 +46,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _confirmSignOut() async {
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showConfirmDialog(
       context,
-      title: 'Sign out?',
-      message: 'Are you sure you want to sign out of My Rest Admin?',
-      confirmLabel: 'Sign out',
+      title: l10n.signOutQuestion,
+      message: l10n.signOutMessage,
+      confirmLabel: l10n.signOut,
       icon: Icons.logout_rounded,
       destructive: true,
     );
@@ -62,6 +65,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context);
     if (!_checked) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
@@ -83,10 +87,10 @@ class _HomePageState extends State<HomePage> {
                   child: const Icon(Icons.gpp_bad_outlined, size: 52, color: kWarning),
                 ),
                 const SizedBox(height: 24),
-                Text('Access denied', style: TextStyle(fontSize: R.fontXl(context), fontWeight: FontWeight.w800)),
+                Text(l10n.accessDenied, style: TextStyle(fontSize: R.fontXl(context), fontWeight: FontWeight.w800)),
                 const SizedBox(height: 8),
                 Text(
-                  'Only the platform admin can use this app.',
+                  l10n.accessDeniedMessage,
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                 ),
@@ -94,7 +98,7 @@ class _HomePageState extends State<HomePage> {
                 FilledButton.icon(
                   onPressed: _confirmSignOut,
                   icon: const Icon(Icons.logout_rounded),
-                  label: const Text('Sign out'),
+                  label: Text(l10n.signOut),
                 ),
               ],
             ),
@@ -129,9 +133,9 @@ class _HomePageState extends State<HomePage> {
                         children: [
                           _brand(36),
                           const SizedBox(height: 6),
-                          const Text(
-                            'My Rest Admin',
-                            style: TextStyle(
+                          Text(
+                            l10n.appTitle,
+                            style: const TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.w700,
                               color: AppColors.primary,
@@ -143,21 +147,21 @@ class _HomePageState extends State<HomePage> {
                     ),
                     minWidth: 108,
                     groupAlignment: 0,
-                    destinations: const [
+                    destinations: [
                       NavigationRailDestination(
-                        icon: Icon(Icons.storefront_outlined, size: 24),
-                        selectedIcon: Icon(Icons.storefront_rounded, size: 24),
-                        label: Text('Restaurants'),
+                        icon: const Icon(Icons.storefront_outlined, size: 24),
+                        selectedIcon: const Icon(Icons.storefront_rounded, size: 24),
+                        label: Text(l10n.tabRestaurants),
                       ),
                       NavigationRailDestination(
-                        icon: Icon(Icons.vpn_key_outlined, size: 24),
-                        selectedIcon: Icon(Icons.vpn_key_rounded, size: 24),
-                        label: Text('Promo Codes'),
+                        icon: const Icon(Icons.vpn_key_outlined, size: 24),
+                        selectedIcon: const Icon(Icons.vpn_key_rounded, size: 24),
+                        label: Text(l10n.tabPromoCodes),
                       ),
                       NavigationRailDestination(
-                        icon: Icon(Icons.insert_chart_outlined_rounded, size: 24),
-                        selectedIcon: Icon(Icons.insert_chart_rounded, size: 24),
-                        label: Text('Reports'),
+                        icon: const Icon(Icons.insert_chart_outlined_rounded, size: 24),
+                        selectedIcon: const Icon(Icons.insert_chart_rounded, size: 24),
+                        label: Text(l10n.tabReports),
                       ),
                     ],
                     trailing: Expanded(
@@ -166,7 +170,7 @@ class _HomePageState extends State<HomePage> {
                         child: Padding(
                           padding: const EdgeInsets.only(bottom: 16),
                           child: IconButton(
-                            tooltip: 'Sign out',
+                            tooltip: l10n.signOut,
                             onPressed: _confirmSignOut,
                             icon: const Icon(Icons.logout_rounded),
                           ),
@@ -198,12 +202,13 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   _brand(28),
                   const SizedBox(width: 10),
-                  const Text('My Rest Admin'),
+                  Text(l10n.appTitle),
                 ],
               ),
               actions: [
+                const LanguageSwitcher(),
                 IconButton(
-                  tooltip: 'Sign out',
+                  tooltip: l10n.signOut,
                   icon: const Icon(Icons.logout_rounded),
                   onPressed: _confirmSignOut,
                 ),
@@ -218,10 +223,10 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             bottomNavigationBar: LiquidGlassNavBar(
-              items: const [
-                LiquidNavItem(icon: Icons.storefront_outlined, activeIcon: Icons.storefront_rounded, label: 'Restaurants'),
-                LiquidNavItem(icon: Icons.vpn_key_outlined, activeIcon: Icons.vpn_key_rounded, label: 'Promo Codes'),
-                LiquidNavItem(icon: Icons.insert_chart_outlined_rounded, activeIcon: Icons.insert_chart_rounded, label: 'Reports'),
+              items: [
+                LiquidNavItem(icon: Icons.storefront_outlined, activeIcon: Icons.storefront_rounded, label: l10n.tabRestaurants),
+                LiquidNavItem(icon: Icons.vpn_key_outlined, activeIcon: Icons.vpn_key_rounded, label: l10n.tabPromoCodes),
+                LiquidNavItem(icon: Icons.insert_chart_outlined_rounded, activeIcon: Icons.insert_chart_rounded, label: l10n.tabReports),
               ],
               selectedIndex: _index,
               onTap: (i) {
@@ -249,11 +254,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _confirmExit(BuildContext context) async {
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showConfirmDialog(
       context,
-      title: 'Exit My Rest Admin?',
-      message: 'Are you sure you want to close the app?',
-      confirmLabel: 'Exit',
+      title: l10n.exitQuestion,
+      message: l10n.exitMessage,
+      confirmLabel: l10n.exit,
       icon: Icons.exit_to_app_rounded,
       destructive: true,
     );

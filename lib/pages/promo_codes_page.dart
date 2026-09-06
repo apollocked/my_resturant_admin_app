@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../core/helpers/responsive.dart';
 import '../data/admin_repository.dart';
+import '../l10n/generated/app_localizations.dart';
 import '../models/promo_code_summary.dart';
 import '../theme/app_theme.dart';
 import '../utils/format.dart';
@@ -70,9 +71,9 @@ class _PromoCodesPageState extends State<PromoCodesPage> {
     Clipboard.setData(ClipboardData(text: code));
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Code copied'),
-          duration: Duration(seconds: 1),
+        SnackBar(
+          content: Text(AppLocalizations.of(context).codeCopied),
+          duration: const Duration(seconds: 1),
         ),
       );
     }
@@ -90,10 +91,11 @@ class _PromoCodesPageState extends State<PromoCodesPage> {
     if (code == null) return;
     await _load();
     if (!mounted) return;
+    final l10n = AppLocalizations.of(context);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Promo code $code minted.'),
-        action: SnackBarAction(label: 'Copy', onPressed: () => _copy(code)),
+        content: Text(l10n.promoCodeMinted(code)),
+        action: SnackBarAction(label: l10n.copy, onPressed: () => _copy(code)),
       ),
     );
   }
@@ -101,6 +103,7 @@ class _PromoCodesPageState extends State<PromoCodesPage> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
     if (_loading && _codes == null) {
       return ShimmerListView(itemCount: 4, itemBuilder: () => const ShimmerCard());
     }
@@ -111,9 +114,9 @@ class _PromoCodesPageState extends State<PromoCodesPage> {
           children: [
             const Icon(Icons.cloud_off_rounded, size: 48, color: kDanger),
             const SizedBox(height: 12),
-            const Text('Failed to load promo codes'),
+            Text(l10n.failedToLoadPromoCodes),
             const SizedBox(height: 12),
-            OutlinedButton(onPressed: _load, child: const Text('Retry')),
+            OutlinedButton(onPressed: _load, child: Text(l10n.retry)),
           ],
         ),
       );
@@ -125,9 +128,9 @@ class _PromoCodesPageState extends State<PromoCodesPage> {
         backgroundColor: kAccent,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add_rounded),
-        label: const Text(
-          'Add code',
-          style: TextStyle(fontWeight: FontWeight.w700),
+        label: Text(
+          l10n.addCode,
+          style: const TextStyle(fontWeight: FontWeight.w700),
         ),
       ),
       body: RefreshIndicator(
@@ -143,7 +146,7 @@ class _PromoCodesPageState extends State<PromoCodesPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Promo Codes',
+                        l10n.promoCodesTitle,
                         style: TextStyle(
                           fontSize: R.fontXxl(context),
                           fontWeight: FontWeight.w800,
@@ -153,7 +156,7 @@ class _PromoCodesPageState extends State<PromoCodesPage> {
                       ),
                       const SizedBox(height: 3),
                       Text(
-                        '${_codes?.length ?? 0} codes minted',
+                        l10n.codesMinted(_codes?.length ?? 0),
                         style: TextStyle(
                           fontSize: 13,
                           color: cs.onSurfaceVariant,
@@ -165,7 +168,7 @@ class _PromoCodesPageState extends State<PromoCodesPage> {
               ],
             ),
             const SizedBox(height: 16),
-            _filterChips(cs),
+            _filterChips(cs, l10n),
             const SizedBox(height: 14),
             if (list.isEmpty)
               Padding(
@@ -174,12 +177,12 @@ class _PromoCodesPageState extends State<PromoCodesPage> {
                   icon: _filter == _CodeFilter.all
                       ? Icons.vpn_key_off_outlined
                       : Icons.filter_alt_off_rounded,
-                  title: _filter == _CodeFilter.all
-                      ? 'No promo codes yet'
-                      : 'Nothing here',
-                  subtitle: _filter == _CodeFilter.all
-                      ? 'Tap "Add code" to mint the first one.'
-                      : 'Try a different filter.',
+title: _filter == _CodeFilter.all
+                              ? l10n.noPromoCodesYet
+                              : l10n.nothingHere,
+                          subtitle: _filter == _CodeFilter.all
+                              ? l10n.noPromoCodesSubtitle
+                              : l10n.noFilterSubtitle,
                 ),
               )
             else
@@ -190,7 +193,7 @@ class _PromoCodesPageState extends State<PromoCodesPage> {
     );
   }
 
-  Widget _filterChips(ColorScheme cs) {
+  Widget _filterChips(ColorScheme cs, AppLocalizations l10n) {
     Widget chip(_CodeFilter f, String label) {
       final count = switch (f) {
         _CodeFilter.all => _codes?.length ?? 0,
@@ -214,10 +217,10 @@ class _PromoCodesPageState extends State<PromoCodesPage> {
       scrollDirection: Axis.horizontal,
       child: Row(
         children: [
-          chip(_CodeFilter.all, 'All'),
-          chip(_CodeFilter.used, 'Used'),
-          chip(_CodeFilter.available, 'Available'),
-          chip(_CodeFilter.expired, 'Expired'),
+          chip(_CodeFilter.all, l10n.filterAll),
+          chip(_CodeFilter.used, l10n.filterUsed),
+          chip(_CodeFilter.available, l10n.filterAvailable),
+          chip(_CodeFilter.expired, l10n.filterExpired),
         ],
       ),
     );
@@ -232,17 +235,18 @@ class _PromoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
     final Color statusColor;
     final String statusText;
     if (c.isUsed) {
       statusColor = kSuccess;
-      statusText = 'Used';
+      statusText = l10n.statusUsed;
     } else if (c.isExpired) {
       statusColor = kDanger;
-      statusText = 'Expired';
+      statusText = l10n.statusExpired;
     } else {
       statusColor = kInfo;
-      statusText = 'Available';
+      statusText = l10n.statusAvailable;
     }
     final days = c.activationDays;
     return Card(
@@ -315,7 +319,9 @@ class _PromoCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   if (c.isUsed) ...[
                     Text(
-                      'Claimed by ${c.usedByEmail ?? '-'}',
+                      c.usedByEmail == null
+                          ? l10n.claimedByUnknown
+                          : l10n.claimedBy(c.usedByEmail!),
                       style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -324,7 +330,7 @@ class _PromoCard extends StatelessWidget {
                     ),
                     if (days != null)
                       Text(
-                        'Activation duration: $days days',
+                        l10n.activationDurationDays(days),
                         style: TextStyle(
                           fontSize: 12,
                           color: cs.onSurfaceVariant,
@@ -333,9 +339,11 @@ class _PromoCard extends StatelessWidget {
                   ],
                   const SizedBox(height: 4),
                   Text(
-                    'Created ${formatDateShort(c.createdAt)}'
-                    '${c.usedAt != null ? '  •  used ${formatDateShort(c.usedAt)}' : ''}'
-                    '${c.expiresAt != null ? '  •  expires ${formatDateShort(c.expiresAt)}' : ''}',
+                    [
+                      l10n.createdOn(formatDateShortL10n(c.createdAt, l10n)),
+                      if (c.usedAt != null) l10n.usedOn(formatDateShortL10n(c.usedAt, l10n)),
+                      if (c.expiresAt != null) l10n.expiresOn(formatDateShortL10n(c.expiresAt, l10n)),
+                    ].join('  •  '),
                     style: TextStyle(
                       fontSize: 11.5,
                       color: cs.onSurfaceVariant,
@@ -346,7 +354,7 @@ class _PromoCard extends StatelessWidget {
             ),
             IconButton(
               icon: Icon(Icons.copy_rounded, size: 18, color: cs.primary),
-              tooltip: 'Copy',
+              tooltip: l10n.copy,
               onPressed: () => onCopy(c.code),
             ),
           ],

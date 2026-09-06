@@ -1,0 +1,189 @@
+{
+  "@@locale": "ckb",
+  "appTitle": "My Rest Admin",
+  "appSubtitle": "ناوەندی کۆنترۆڵی پلاتفۆرم",
+
+  "login_emailLabel": "ئیمەیڵ",
+  "login_passwordLabel": "وشەی نهێنی",
+  "login_invalidEmail": "ئیمەیڵێکی دروست بنووسە",
+  "login_passwordTooShort": "وشەی نهێنی زۆر کورتە",
+  "login_unauthorized": "ئەم هەژمارەیە دەسەڵاتی بەڕێوەبەری پلاتفۆرمی نییە.",
+  "login_signInFailed": "چوونەژوورەوە سەرکەوتوو نەبوو. پشکنینی ڕەچاو بکە.",
+  "login_signIn": "چوونە ژوورەوە",
+
+  "signOutQuestion": "دەرچوون؟",
+  "signOutMessage": "دڵنیایت کە دەتەوێت لە My Rest Admin بچیتە دەرەوە؟",
+  "signOut": "دەرچوون",
+
+  "exitQuestion": "داخستنی My Rest Admin؟",
+  "exitMessage": "دڵنیایت کە دەتەوێت ئەپەکە ببەیتەوە؟",
+  "exit": "داخستن",
+
+  "accessDenied": "ڕێگەپێنەدراوە",
+  "accessDeniedMessage": "تەنها بەڕێوەبەری پلاتفۆرم دەتوانێت ئەم ئەپە بەکاربهێنێت.",
+
+  "tabRestaurants": "ڕێستۆرانتەکان",
+  "tabPromoCodes": "کۆدی پرۆمۆ",
+  "tabReports": "ڕاپۆرتەکان",
+
+  "restaurantsTitle": "ڕێستۆرانتەکان",
+  "registeredAccounts": "هەژمارە تۆمارکراوەکان: {count}",
+  "@registeredAccounts": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "statTotal": "کۆ",
+  "statActivated": "چالاککراو",
+  "statActiveSubs": "بەشداربووی چالاک",
+  "statExpiring": "بەسەرچوون ≤٣٠ ڕۆژ",
+  "searchByEmail": "گەڕان بە ئیمەیڵ…",
+  "noRestaurantsYet": "هێشتا ڕێستۆرانت نییە",
+  "noMatches": "هیچ نەدۆزرایەوە",
+  "noRestaurantsSubtitle": "کرتە لە \"زیادکردنی ڕێستۆرانت\" بکە بۆ دروستکردنی یەکەم.",
+  "noMatchesSubtitle": "گەڕانێکی جیاواز تاقی بکەوە.",
+  "addRestaurant": "زیادکردنی ڕێستۆرانت",
+  "statusNotActivated": "چالاک نەکراوە",
+  "statusExpired": "بەسەرچوو",
+  "statusActivated": "چالاککراو",
+  "joinedOn": "لە {date} بەشداری کردووە",
+  "recipes": "چێشت",
+  "orders": "داوەکان",
+  "noPromoCodeClaimed": "هێشتا هیچ کۆدێکی پرۆمۆ داوا نەکراوە",
+  "activationDaysLabel": "چالاکبوون  •  {days} ڕۆژ",
+  "@activationDaysLabel": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "daysLeft": "ڕۆژەکانی ماوە: {days}",
+  "@daysLeft": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "codeRange": "کۆد {code}  •  {start}  ←  {end}",
+  "staffPins": "پینەکانی ستاف:",
+  "roleAdmin": "بەڕێوەبەر",
+  "roleWaiter": "ڕێشەفەر",
+  "roleKitchen": "چێشتخانە",
+  "pinSet": "پینی {role} دانراوە",
+  "pinUnset": "پینی {role} —",
+
+  "promoCodesTitle": "کۆدی پرۆمۆ",
+  "codesMinted": "کۆدە دروستکراوەکان: {count}",
+  "@codesMinted": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "addCode": "زیادکردنی کۆد",
+  "filterAll": "هەموو",
+  "filterUsed": "بەکارهاتوو",
+  "filterAvailable": "بەردەست",
+  "filterExpired": "بەسەرچوو",
+  "noPromoCodesYet": "هێشتا کۆدی پرۆمۆ نییە",
+  "nothingHere": "هیچ شتێک لێرە نییە",
+  "noPromoCodesSubtitle": "کرتە لە \"زیادکردنی کۆد\" بکە بۆ دروستکردنی یەکەم.",
+  "noFilterSubtitle": "فلتەرێکی جیاواز تاقی بکەوە.",
+  "statusUsed": "بەکارهاتوو",
+  "statusAvailable": "بەردەست",
+  "claimedBy": "داواکراوە لەلایەن {email}",
+  "activationDurationDays": "ماوەی چالاکبوون: {days} ڕۆژ",
+  "@activationDurationDays": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "createdOn": "دروستکراوە لە {date}",
+  "usedOn": "بەکارهاتوو لە {date}",
+  "expiresOn": "بەسەردەچێت لە {date}",
+  "copy": "لەبەرگرتنەوە",
+  "retry": "هەوڵدانەوە",
+  "failedToLoadRestaurants": "بارکردنی ڕێستۆرانتەکان سەرکەوتوو نەبوو",
+  "failedToLoadPromoCodes": "بارکردنی کۆدی پرۆمۆ سەرکەوتوو نەبوو",
+  "restaurantCreated": "ڕێستۆرانت دروستکرا.",
+  "restaurantCreatedWithCode": "ڕێستۆرانت دروستکرا. کۆدی پرۆمۆ: {code}",
+  "codeCopied": "کۆدەکە لەبەرگیرایەوە",
+  "promoCodeMinted": "کۆدی پرۆمۆ {code} دروستکرا.",
+  "claimedByUnknown": "داواکراوە لەلایەن —",
+
+  "reportsTitle": "ڕاپۆرتەکان",
+  "updatedOn": "نوێکراوەتەوە لە {date}",
+  "failedToLoadReports": "بارکردنی ڕاپۆرتەکان سەرکەوتوو نەبوو",
+  "revenue": "داهات",
+  "itemsSold": "کاڵا فرۆشراوەکان",
+  "perRestaurant": "بۆ هەر ڕێستۆرانت",
+  "noRestaurantAccounts": "هێشتا هەژماری ڕێستۆرانت نییە.",
+  "accountsAndPromoCodes": "هەژمارەکان و کۆدی پرۆمۆ",
+  "ordersByStatus": "داوەکان بەپێی دۆخ",
+  "totalCount": "کۆ: {count}",
+  "@totalCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "noOrdersYet": "هێشتا هیچ داواکارییەک نییە.",
+  "statusServed": "خزمەتکراو",
+  "statusPreparing": "ئامادەدەکرێت",
+  "statusPending": "چاوەڕوان",
+  "ordersLast14Days": "داوەکان — ١٤ ڕۆژی ڕابردوو",
+  "topSellingItems": "فرۆشترین کاڵاکان",
+  "accounts": "هەژمارەکان",
+  "joinedLast30d": "بەشداریکردوو لە ٣٠ ڕۆژی ڕابردوودا",
+  "joinedLast90d": "بەشداریکردوو لە ٩٠ ڕۆژی ڕابردوودا",
+  "promoCodes": "کۆدی پرۆمۆ",
+  "expiringIn30d": "بەسەردەچێت لە ٣٠ ڕۆژدا",
+  "statusActive": "چالاک",
+  "codeWord": "کۆد",
+  "avgOrder": "ناوەندی داواکاری",
+  "items": "کاڵا",
+  "adminPin": "پینی بەڕێوەبەر",
+  "waiterPin": "پینی ڕێشەفەر",
+  "kitchenPin": "پینی چێشتخانە",
+  "noPin": "بێ پین",
+
+  "createRestaurantQuestion": "دروستکردنی ڕێستۆرانت؟",
+  "createRestaurantMessage": "ئەمە هەژمارەیەکی نوێی ڕێستۆرانت دروست دەکات کە دەستگەیشتنی بە پلاتفۆرم دەبێت.",
+  "create": "دروستکردن",
+  "somethingWentWrong": "هەڵەیەک ڕوویدا.",
+  "addRestaurantSheetTitle": "زیادکردنی ڕێستۆرانت",
+  "addRestaurantSheetSubtitle": "هەژمارەکە ڕاستەوخۆ دروست دەکات. هەڵبژاردنی ماوەیەک کۆدی پرۆمۆ دروست و داوا دەکات.",
+  "restaurantEmail": "ئیمەیڵی ڕێستۆرانت",
+  "passwordTooShortMin6": "وشەی نهێنی زۆر کورتە (بەلایەنی کەم ٦)",
+  "activationDuration": "ماوەی چالاکبوون",
+  "mintsPromoCode": "کۆدی پرۆمۆ دروست دەکات",
+  "durationMonths": "{months} مانگ",
+  "@durationMonths": {
+    "placeholders": {
+      "months": { "type": "int" }
+    }
+  },
+  "cancel": "پاشگەزبوونەوە",
+  "mintCode": "دروستکردنی کۆد",
+  "addPromoCodeSheetTitle": "زیادکردنی کۆدی پرۆمۆ",
+  "addPromoCodeSheetSubtitle": "کۆدێک دروست دەکات کە ڕێستۆرانتەکان دەتوانن بۆ چالاکبوون داوا بکەن.",
+  "customCodeOptional": "کۆدی تایبەت (هەڵبژاردەیی)",
+  "min4Characters": "بەلایەنی کەم ٤ نووسە",
+  "autoGenerateHint": "بەتاڵی بهێڵەوە بۆ دروستکردنی کۆدی هەڕەمەکی.",
+
+  "backOnline": "گەڕانەوە بۆ ئۆنلاین",
+  "noInternetConnection": "هیچ پەیوەندییەکی ئینتەرنێت نییە",
+
+  "language": "زمان",
+  "languageEnglish": "Englіsh",
+  "languageKurdish": "کوردی",
+
+  "monthJan": "کانوونی دووەم",
+  "monthFeb": "شوبات",
+  "monthMar": "ئازار",
+  "monthApr": "نیسان",
+  "monthMay": "ئایار",
+  "monthJun": "حوزەیران",
+  "monthJul": "تەمووز",
+  "monthAug": "ئاب",
+  "monthSep": "ئەیلوول",
+  "monthOct": "تشرینی یەکەم",
+  "monthNov": "تشرینی دووەم",
+  "monthDec": "کانوونی یەکەم"
+}

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/generated/app_localizations.dart';
 import '../theme/app_theme.dart';
 
 Future<bool> showConfirmDialog(
@@ -29,7 +30,7 @@ Future<bool> showConfirmDialog(
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(ctx).cancel),
           ),
           FilledButton(
             style: destructive ? FilledButton.styleFrom(backgroundColor: color) : null,

@@ -1,7 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 import 'config/supabase_config.dart';
+import 'core/l10n/custom_delegates.dart';
+import 'core/l10n/locale_controller.dart';
+import 'l10n/generated/app_localizations.dart';
 import 'pages/home_page.dart';
 import 'pages/login_page.dart';
 import 'theme/app_theme.dart';
@@ -12,6 +16,7 @@ Future<void> main() async {
     url: SupabaseConfig.url,
     publishableKey: SupabaseConfig.anonKey,
   );
+  await LocaleController.instance.load();
   runApp(const MyRestAdminApp());
 }
 
@@ -20,13 +25,26 @@ class MyRestAdminApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'My Rest Admin',
-      debugShowCheckedModeBanner: false,
-      theme: buildTheme(Brightness.light),
-      darkTheme: buildTheme(Brightness.dark),
-      themeMode: ThemeMode.system,
-      home: const AuthGate(),
+    return ValueListenableBuilder<Locale>(
+      valueListenable: LocaleController.instance.locale,
+      builder: (context, locale, _) {
+        return MaterialApp(
+          title: 'My Rest Admin',
+          debugShowCheckedModeBanner: false,
+          theme: buildTheme(Brightness.light),
+          darkTheme: buildTheme(Brightness.dark),
+          themeMode: ThemeMode.system,
+          locale: locale,
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            KurdishMaterialLocalizationsDelegate(),
+            KurdishCupertinoLocalizationsDelegate(),
+            KurdishWidgetsLocalizationsDelegate(),
+          ],
+          home: const AuthGate(),
+        );
+      },
     );
   }
 }

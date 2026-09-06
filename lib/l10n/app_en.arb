@@ -1,0 +1,189 @@
+{
+  "@@locale": "en",
+  "appTitle": "My Rest Admin",
+  "appSubtitle": "Platform control center",
+
+  "login_emailLabel": "Email",
+  "login_passwordLabel": "Password",
+  "login_invalidEmail": "Enter a valid email",
+  "login_passwordTooShort": "Password too short",
+  "login_unauthorized": "This account is not authorized as platform admin.",
+  "login_signInFailed": "Sign in failed. Check your credentials.",
+  "login_signIn": "Sign in",
+
+  "signOutQuestion": "Sign out?",
+  "signOutMessage": "Are you sure you want to sign out of My Rest Admin?",
+  "signOut": "Sign out",
+
+  "exitQuestion": "Exit My Rest Admin?",
+  "exitMessage": "Are you sure you want to close the app?",
+  "exit": "Exit",
+
+  "accessDenied": "Access denied",
+  "accessDeniedMessage": "Only the platform admin can use this app.",
+
+  "tabRestaurants": "Restaurants",
+  "tabPromoCodes": "Promo Codes",
+  "tabReports": "Reports",
+
+  "restaurantsTitle": "Restaurants",
+  "registeredAccounts": "Registered accounts: {count}",
+  "@registeredAccounts": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "statTotal": "Total",
+  "statActivated": "Activated",
+  "statActiveSubs": "Active subs",
+  "statExpiring": "Expiring ≤30d",
+  "searchByEmail": "Search by email…",
+  "noRestaurantsYet": "No restaurants yet",
+  "noMatches": "No matches",
+  "noRestaurantsSubtitle": "Tap \"Add restaurant\" to create the first one.",
+  "noMatchesSubtitle": "Try a different search.",
+  "addRestaurant": "Add restaurant",
+  "statusNotActivated": "Not activated",
+  "statusExpired": "Expired",
+  "statusActivated": "Activated",
+  "joinedOn": "Joined {date}",
+  "recipes": "recipes",
+  "orders": "orders",
+  "noPromoCodeClaimed": "No promo code claimed yet",
+  "activationDaysLabel": "Activation  •  {days} days",
+  "@activationDaysLabel": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "daysLeft": "Days left: {days}",
+  "@daysLeft": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "codeRange": "Code {code}  •  {start}  →  {end}",
+  "staffPins": "Staff PINs:",
+  "roleAdmin": "Admin",
+  "roleWaiter": "Waiter",
+  "roleKitchen": "Kitchen",
+  "pinSet": "{role} PIN set",
+  "pinUnset": "{role} PIN —",
+
+  "promoCodesTitle": "Promo Codes",
+  "codesMinted": "Codes minted: {count}",
+  "@codesMinted": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "addCode": "Add code",
+  "filterAll": "All",
+  "filterUsed": "Used",
+  "filterAvailable": "Available",
+  "filterExpired": "Expired",
+  "noPromoCodesYet": "No promo codes yet",
+  "nothingHere": "Nothing here",
+  "noPromoCodesSubtitle": "Tap \"Add code\" to mint the first one.",
+  "noFilterSubtitle": "Try a different filter.",
+  "statusUsed": "Used",
+  "statusAvailable": "Available",
+  "claimedBy": "Claimed by {email}",
+  "activationDurationDays": "Activation duration: {days} days",
+  "@activationDurationDays": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "createdOn": "Created {date}",
+  "usedOn": "used {date}",
+  "expiresOn": "expires {date}",
+  "copy": "Copy",
+  "retry": "Retry",
+  "failedToLoadRestaurants": "Failed to load restaurants",
+  "failedToLoadPromoCodes": "Failed to load promo codes",
+  "restaurantCreated": "Restaurant created.",
+  "restaurantCreatedWithCode": "Restaurant created. Promo code: {code}",
+  "codeCopied": "Code copied",
+  "promoCodeMinted": "Promo code {code} minted.",
+  "claimedByUnknown": "Claimed by —",
+
+  "reportsTitle": "Reports",
+  "updatedOn": "Updated {date}",
+  "failedToLoadReports": "Failed to load reports",
+  "revenue": "Revenue",
+  "itemsSold": "Items sold",
+  "perRestaurant": "Per restaurant",
+  "noRestaurantAccounts": "No restaurant accounts yet.",
+  "accountsAndPromoCodes": "Accounts & promo codes",
+  "ordersByStatus": "Orders by status",
+  "totalCount": "Total: {count}",
+  "@totalCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "noOrdersYet": "No orders yet.",
+  "statusServed": "Served",
+  "statusPreparing": "Preparing",
+  "statusPending": "Pending",
+  "ordersLast14Days": "Orders — last 14 days",
+  "topSellingItems": "Top selling items",
+  "accounts": "Accounts",
+  "joinedLast30d": "Joined last 30d",
+  "joinedLast90d": "Joined last 90d",
+  "promoCodes": "Promo codes",
+  "expiringIn30d": "Expiring in 30d",
+  "statusActive": "Active",
+  "codeWord": "code",
+  "avgOrder": "Avg order",
+  "items": "Items",
+  "adminPin": "Admin PIN",
+  "waiterPin": "Waiter PIN",
+  "kitchenPin": "Kitchen PIN",
+  "noPin": "No PIN",
+
+  "createRestaurantQuestion": "Create restaurant?",
+  "createRestaurantMessage": "This will create a new restaurant account with access to the platform.",
+  "create": "Create",
+  "somethingWentWrong": "Something went wrong.",
+  "addRestaurantSheetTitle": "Add restaurant",
+  "addRestaurantSheetSubtitle": "Creates the account directly. Choosing a duration mints & claims a promo code.",
+  "restaurantEmail": "Restaurant email",
+  "passwordTooShortMin6": "Password too short (min 6)",
+  "activationDuration": "Activation duration",
+  "mintsPromoCode": "mints a promo code",
+  "durationMonths": "{months} mo",
+  "@durationMonths": {
+    "placeholders": {
+      "months": { "type": "int" }
+    }
+  },
+  "cancel": "Cancel",
+  "mintCode": "Mint code",
+  "addPromoCodeSheetTitle": "Add promo code",
+  "addPromoCodeSheetSubtitle": "Mints a code that restaurants can claim for activation.",
+  "customCodeOptional": "Custom code (optional)",
+  "min4Characters": "Min 4 characters",
+  "autoGenerateHint": "Leave empty to auto-generate a random code.",
+
+  "backOnline": "Back online",
+  "noInternetConnection": "No internet connection",
+
+  "language": "Language",
+  "languageEnglish": "English",
+  "languageKurdish": "Kurdî",
+
+  "monthJan": "Jan",
+  "monthFeb": "Feb",
+  "monthMar": "Mar",
+  "monthApr": "Apr",
+  "monthMay": "May",
+  "monthJun": "Jun",
+  "monthJul": "Jul",
+  "monthAug": "Aug",
+  "monthSep": "Sep",
+  "monthOct": "Oct",
+  "monthNov": "Nov",
+  "monthDec": "Dec"
+}

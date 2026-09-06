@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/helpers/responsive.dart';
 import '../data/admin_repository.dart';
+import '../l10n/generated/app_localizations.dart';
 import '../models/restaurant_summary.dart';
 import '../theme/app_theme.dart';
 import '../utils/format.dart';
@@ -76,10 +77,11 @@ class _RestaurantsPageState extends State<RestaurantsPage> {
     if (code == null) return;
     await _load();
     if (!mounted) return;
+    final l10n = AppLocalizations.of(context);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          code.isEmpty ? 'Restaurant created.' : 'Restaurant created. Promo code: $code',
+          code.isEmpty ? l10n.restaurantCreated : l10n.restaurantCreatedWithCode(code),
         ),
       ),
     );
@@ -88,6 +90,7 @@ class _RestaurantsPageState extends State<RestaurantsPage> {
   @override
   Widget build(BuildContext context) {
     final list = _filtered;
+    final l10n = AppLocalizations.of(context);
     if (_loading && _restaurants == null) {
       return ShimmerListView(itemCount: 4, itemBuilder: () => const ShimmerCard());
     }
@@ -98,9 +101,9 @@ class _RestaurantsPageState extends State<RestaurantsPage> {
           children: [
             const Icon(Icons.cloud_off_rounded, size: 48, color: kDanger),
             const SizedBox(height: 12),
-            const Text('Failed to load restaurants'),
+            Text(l10n.failedToLoadRestaurants),
             const SizedBox(height: 12),
-            OutlinedButton(onPressed: _load, child: const Text('Retry')),
+            OutlinedButton(onPressed: _load, child: Text(l10n.retry)),
           ],
         ),
       );
@@ -111,21 +114,21 @@ class _RestaurantsPageState extends State<RestaurantsPage> {
         backgroundColor: kAccent,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add_rounded),
-        label: const Text('Add restaurant', style: TextStyle(fontWeight: FontWeight.w700)),
+        label: Text(l10n.addRestaurant, style: const TextStyle(fontWeight: FontWeight.w700)),
       ),
       body: RefreshIndicator(
         onRefresh: _load,
         child: ListView(
           padding: EdgeInsets.fromLTRB(R.padding(context), 8, R.padding(context), 100),
           children: [
-            _header(),
+            _header(l10n),
             const SizedBox(height: 16),
-            _statGrid(),
+            _statGrid(l10n),
             const SizedBox(height: 20),
-            _searchField(),
+            _searchField(l10n),
             const SizedBox(height: 14),
             if (list.isEmpty)
-              _emptyState(_restaurants!.isEmpty)
+              _emptyState(l10n, _restaurants!.isEmpty)
             else
               ...list.map((r) => _RestaurantCard(r: r)),
           ],
@@ -134,7 +137,7 @@ class _RestaurantsPageState extends State<RestaurantsPage> {
     );
   }
 
-  Widget _header() {
+  Widget _header(AppLocalizations l10n) {
     final cs = Theme.of(context).colorScheme;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
@@ -144,7 +147,7 @@ class _RestaurantsPageState extends State<RestaurantsPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Restaurants',
+                l10n.restaurantsTitle,
                 style: TextStyle(
                   fontSize: R.fontXxl(context),
                   fontWeight: FontWeight.w800,
@@ -154,7 +157,7 @@ class _RestaurantsPageState extends State<RestaurantsPage> {
               ),
               const SizedBox(height: 3),
               Text(
-                '${_restaurants?.length ?? 0} registered accounts',
+                l10n.registeredAccounts(_restaurants?.length ?? 0),
                 style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
               ),
             ],
@@ -169,7 +172,7 @@ class _RestaurantsPageState extends State<RestaurantsPage> {
     );
   }
 
-  Widget _statGrid() {
+  Widget _statGrid(AppLocalizations l10n) {
     final list = _restaurants ?? const <RestaurantSummary>[];
     final total = list.length;
     final activated = list.where((r) => r.activated).length;
@@ -184,17 +187,17 @@ class _RestaurantsPageState extends State<RestaurantsPage> {
       children: [
         Row(
           children: [
-            Expanded(child: _statTile(Icons.storefront_rounded, total, 'Total', kAccent)),
+            Expanded(child: _statTile(Icons.storefront_rounded, total, l10n.statTotal, kAccent)),
             const SizedBox(width: 12),
-            Expanded(child: _statTile(Icons.check_circle_rounded, activated, 'Activated', kSuccess)),
+            Expanded(child: _statTile(Icons.check_circle_rounded, activated, l10n.statActivated, kSuccess)),
           ],
         ),
         const SizedBox(height: 12),
         Row(
           children: [
-            Expanded(child: _statTile(Icons.bolt_rounded, active, 'Active subs', kInfo)),
+            Expanded(child: _statTile(Icons.bolt_rounded, active, l10n.statActiveSubs, kInfo)),
             const SizedBox(width: 12),
-            Expanded(child: _statTile(Icons.schedule_rounded, expiring, 'Expiring ≤30d', kWarning)),
+            Expanded(child: _statTile(Icons.schedule_rounded, expiring, l10n.statExpiring, kWarning)),
           ],
         ),
       ],
@@ -239,12 +242,12 @@ class _RestaurantsPageState extends State<RestaurantsPage> {
     );
   }
 
-  Widget _searchField() {
+  Widget _searchField(AppLocalizations l10n) {
     return TextField(
       controller: _searchCtrl,
       onChanged: (v) => setState(() => _query = v),
       decoration: InputDecoration(
-        hintText: 'Search by email…',
+        hintText: l10n.searchByEmail,
         prefixIcon: const Icon(Icons.search_rounded, size: 20),
         suffixIcon: _query.isEmpty
             ? null
@@ -259,13 +262,11 @@ class _RestaurantsPageState extends State<RestaurantsPage> {
     );
   }
 
-  Widget _emptyState(bool noData) {
+  Widget _emptyState(AppLocalizations l10n, bool noData) {
     return EmptyState(
       icon: noData ? Icons.storefront_outlined : Icons.search_off_rounded,
-      title: noData ? 'No restaurants yet' : 'No matches',
-      subtitle: noData
-          ? 'Tap "Add restaurant" to create the first one.'
-          : 'Try a different search.',
+      title: noData ? l10n.noRestaurantsYet : l10n.noMatches,
+      subtitle: noData ? l10n.noRestaurantsSubtitle : l10n.noMatchesSubtitle,
     );
   }
 }
@@ -278,6 +279,7 @@ class _RestaurantCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final dark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context);
     final remaining = r.daysRemaining;
     final isExpired = remaining != null && remaining <= 0;
     final statusColor = !r.activated
@@ -286,10 +288,10 @@ class _RestaurantCard extends StatelessWidget {
             ? kDanger
             : kSuccess;
     final statusLabel = !r.activated
-        ? 'Not activated'
+        ? l10n.statusNotActivated
         : isExpired
-            ? 'Expired'
-            : 'Activated';
+            ? l10n.statusExpired
+            : l10n.statusActivated;
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
@@ -312,7 +314,7 @@ class _RestaurantCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 3),
                       Text(
-                        'Joined ${formatDateShort(r.createdAt)}',
+                        l10n.joinedOn(formatDateShortL10n(r.createdAt, l10n)),
                         style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
                       ),
                     ],
@@ -322,17 +324,17 @@ class _RestaurantCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 14),
-            _promoBlock(cs, dark, remaining, isExpired),
+            _promoBlock(cs, dark, l10n, remaining, isExpired),
             const SizedBox(height: 12),
-            _staffBlock(cs),
+            _staffBlock(cs, l10n),
             const SizedBox(height: 12),
             Divider(color: cs.outlineVariant.withValues(alpha: 0.5)),
             const SizedBox(height: 10),
             Row(
               children: [
-                _stat(cs, Icons.restaurant_menu_rounded, r.recipesCount, 'recipes'),
+                _stat(cs, l10n, Icons.restaurant_menu_rounded, r.recipesCount, l10n.recipes),
                 const SizedBox(width: 20),
-                _stat(cs, Icons.receipt_long_rounded, r.ordersCount, 'orders'),
+                _stat(cs, l10n, Icons.receipt_long_rounded, r.ordersCount, l10n.orders),
               ],
             ),
           ],
@@ -377,7 +379,7 @@ class _RestaurantCard extends StatelessWidget {
     );
   }
 
-  Widget _promoBlock(ColorScheme cs, bool dark, int? remaining, bool isExpired) {
+  Widget _promoBlock(ColorScheme cs, bool dark, AppLocalizations l10n, int? remaining, bool isExpired) {
     final code = r.promoCode;
     if (code == null) {
       return Container(
@@ -387,7 +389,7 @@ class _RestaurantCard extends StatelessWidget {
           color: (dark ? Colors.white : const Color(0xFF111827)).withValues(alpha: dark ? 0.05 : 0.04),
           borderRadius: BorderRadius.circular(14),
         ),
-        child: Text('No promo code claimed yet', style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant)),
+        child: Text(l10n.noPromoCodeClaimed, style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant)),
       );
     }
     final total = r.activationDays;
@@ -408,7 +410,7 @@ class _RestaurantCard extends StatelessWidget {
               const Icon(Icons.vpn_key_rounded, size: 16, color: kAccent),
               const SizedBox(width: 8),
               Text(
-                'Activation  •  $total days',
+                l10n.activationDaysLabel(total),
                 style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
               ),
               const Spacer(),
@@ -416,8 +418,8 @@ class _RestaurantCard extends StatelessWidget {
                 remaining == null
                     ? '—'
                     : isExpired
-                        ? 'Expired'
-                        : '$remaining days left',
+                        ? l10n.statusExpired
+                        : l10n.daysLeft(remaining),
                 style: TextStyle(
                   fontSize: 12.5,
                   fontWeight: FontWeight.w800,
@@ -438,7 +440,11 @@ class _RestaurantCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Code $code  •  ${formatDateShort(r.promoUsedAt)}  →  ${formatDateShort(r.promoExpiresAt)}',
+            l10n.codeRange(
+              code,
+              formatDateShortL10n(r.promoUsedAt, l10n),
+              formatDateShortL10n(r.promoExpiresAt, l10n),
+            ),
             style: TextStyle(fontSize: 11.5, color: cs.onSurfaceVariant, fontFamily: 'monospace'),
           ),
         ],
@@ -446,21 +452,21 @@ class _RestaurantCard extends StatelessWidget {
     );
   }
 
-  Widget _staffBlock(ColorScheme cs) {
+  Widget _staffBlock(ColorScheme cs, AppLocalizations l10n) {
     return Wrap(
       spacing: 8,
       runSpacing: 6,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        Text('Staff PINs:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: cs.onSurfaceVariant)),
-        _pinChip(cs, 'Admin', r.pinAdminSet),
-        _pinChip(cs, 'Waiter', r.pinWaiterSet),
-        _pinChip(cs, 'Kitchen', r.pinKitchenSet),
+        Text(l10n.staffPins, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: cs.onSurfaceVariant)),
+        _pinChip(cs, l10n, 'Admin', r.pinAdminSet),
+        _pinChip(cs, l10n, 'Waiter', r.pinWaiterSet),
+        _pinChip(cs, l10n, 'Kitchen', r.pinKitchenSet),
       ],
     );
   }
 
-  Widget _pinChip(ColorScheme cs, String label, bool set) {
+  Widget _pinChip(ColorScheme cs, AppLocalizations l10n, String label, bool set) {
     final color = set ? kSuccess : cs.outline;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -471,7 +477,7 @@ class _RestaurantCard extends StatelessWidget {
           Icon(set ? Icons.check_circle_rounded : Icons.remove_circle_outline_rounded, size: 13, color: set ? color : cs.outline),
           const SizedBox(width: 5),
           Text(
-            '$label PIN ${set ? 'set' : '—'}',
+            l10n.pinSet(label),
             style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: set ? color : cs.onSurfaceVariant),
           ),
         ],
@@ -479,7 +485,7 @@ class _RestaurantCard extends StatelessWidget {
     );
   }
 
-  Widget _stat(ColorScheme cs, IconData icon, int value, String label) {
+  Widget _stat(ColorScheme cs, AppLocalizations l10n, IconData icon, int value, String label) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [

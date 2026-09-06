@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations_ext.dart';
+import '../l10n/generated/app_localizations.dart';
+
 String formatDate(DateTime? d) {
   if (d == null) return '-';
   final l = d.toLocal();
@@ -10,6 +13,12 @@ String formatDateShort(DateTime? d) {
   if (d == null) return '-';
   final l = d.toLocal();
   return '${l.day} ${_monthName(l.month)} ${l.year}';
+}
+
+String formatDateShortL10n(DateTime? d, AppLocalizations l10n) {
+  if (d == null) return '-';
+  final l = d.toLocal();
+  return '${l.day} ${l10n.months[l.month - 1]} ${l.year}';
 }
 
 String _monthName(int m) {

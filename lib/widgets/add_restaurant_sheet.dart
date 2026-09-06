@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:postgrest/postgrest.dart';
 
 import '../data/admin_repository.dart';
+import '../l10n/generated/app_localizations.dart';
 import '../theme/app_theme.dart';
 import 'confirm_dialog.dart';
 
@@ -23,13 +24,6 @@ class _AddRestaurantSheetState extends State<AddRestaurantSheet> {
   int _months = 12;
 
   static const _durations = <int>[1, 3, 6, 12, 24];
-  static const _durationLabels = <int, String>{
-    1: '1 mo',
-    3: '3 mo',
-    6: '6 mo',
-    12: '12 mo',
-    24: '24 mo',
-  };
 
   @override
   void dispose() {
@@ -40,11 +34,12 @@ class _AddRestaurantSheetState extends State<AddRestaurantSheet> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showConfirmDialog(
       context,
-      title: 'Create restaurant?',
-      message: 'This will create a new restaurant account with access to the platform.',
-      confirmLabel: 'Create',
+      title: l10n.createRestaurantQuestion,
+      message: l10n.createRestaurantMessage,
+      confirmLabel: l10n.create,
       icon: Icons.storefront_rounded,
     );
     if (!confirmed || !mounted) return;
@@ -62,8 +57,9 @@ class _AddRestaurantSheetState extends State<AddRestaurantSheet> {
       Navigator.pop(context, code ?? '');
     } catch (e) {
       if (mounted) {
+        final msg = e is PostgrestException && e.message.isNotEmpty ? e.message : l10n.somethingWentWrong;
         setState(() {
-          _error = e is PostgrestException && e.message.isNotEmpty ? e.message : 'Something went wrong.';
+          _error = msg;
           _loading = false;
         });
       }
@@ -74,6 +70,7 @@ class _AddRestaurantSheetState extends State<AddRestaurantSheet> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final dark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: EdgeInsets.only(
         left: 20,
@@ -114,10 +111,10 @@ class _AddRestaurantSheetState extends State<AddRestaurantSheet> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Add restaurant', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: cs.onSurface)),
+                        Text(l10n.addRestaurantSheetTitle, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: cs.onSurface)),
                         const SizedBox(height: 2),
                         Text(
-                          'Creates the account directly. Choosing a duration mints & claims a promo code.',
+                          l10n.addRestaurantSheetSubtitle,
                           style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
                         ),
                       ],
@@ -132,9 +129,9 @@ class _AddRestaurantSheetState extends State<AddRestaurantSheet> {
                 textCapitalization: TextCapitalization.none,
                 decoration: InputDecoration(
                   prefixIcon: const Icon(Icons.email_outlined, size: 20),
-                  labelText: 'Restaurant email',
+                  labelText: l10n.restaurantEmail,
                 ),
-                validator: (v) => v == null || !v.contains('@') ? 'Enter a valid email' : null,
+                validator: (v) => v == null || !v.contains('@') ? l10n.login_invalidEmail : null,
               ),
               const SizedBox(height: 14),
               TextFormField(
@@ -146,19 +143,19 @@ class _AddRestaurantSheetState extends State<AddRestaurantSheet> {
                     icon: Icon(_obscure ? Icons.visibility_off : Icons.visibility, size: 20),
                     onPressed: () => setState(() => _obscure = !_obscure),
                   ),
-                  labelText: 'Password',
+                  labelText: l10n.login_passwordLabel,
                 ),
-                validator: (v) => v == null || v.length < 6 ? 'Password too short (min 6)' : null,
+                validator: (v) => v == null || v.length < 6 ? l10n.passwordTooShortMin6 : null,
               ),
               const SizedBox(height: 20),
               Row(
                 children: [
                   const Icon(Icons.timer_outlined, size: 16, color: kAccent),
                   const SizedBox(width: 8),
-                  Text('Activation duration', style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: cs.onSurface)),
+                  Text(l10n.activationDuration, style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: cs.onSurface)),
                   const Spacer(),
                   Text(
-                    'mints a promo code',
+                    l10n.mintsPromoCode,
                     style: TextStyle(fontSize: 11.5, color: cs.onSurfaceVariant),
                   ),
                 ],
@@ -181,7 +178,7 @@ class _AddRestaurantSheetState extends State<AddRestaurantSheet> {
                         border: Border.all(color: selected ? kAccent : (dark ? Colors.white : const Color(0xFF111827)).withValues(alpha: dark ? 0.10 : 0.07)),
                       ),
                       child: Text(
-                        _durationLabels[m]!,
+                        l10n.durationMonths(m),
                         style: TextStyle(
                           fontSize: 13.5,
                           fontWeight: FontWeight.w700,
@@ -215,7 +212,7 @@ class _AddRestaurantSheetState extends State<AddRestaurantSheet> {
                   Expanded(
                     child: OutlinedButton(
                       onPressed: _loading ? null : () => Navigator.pop(context),
-                      child: const Text('Cancel'),
+                      child: Text(l10n.cancel),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -224,7 +221,7 @@ class _AddRestaurantSheetState extends State<AddRestaurantSheet> {
                       onPressed: _loading ? null : _submit,
                       child: _loading
                           ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                          : const Text('Create'),
+                          : Text(l10n.create),
                     ),
                   ),
                 ],

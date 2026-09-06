@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 
+import '../l10n/generated/app_localizations.dart';
+
 class ConnectivityBanner extends StatefulWidget {
   final Widget child;
   const ConnectivityBanner({super.key, required this.child});
@@ -50,7 +52,8 @@ class _ConnectivityBannerState extends State<ConnectivityBanner> with SingleTick
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final msg = _connected ? 'Back online' : 'No internet connection';
+    final l10n = AppLocalizations.of(context);
+    final msg = _connected ? l10n.backOnline : l10n.noInternetConnection;
 
     return SafeArea(bottom: false, child: Column(children: [
       AnimatedBuilder(

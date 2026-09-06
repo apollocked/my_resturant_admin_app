@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:postgrest/postgrest.dart';
 
 import '../data/admin_repository.dart';
+import '../l10n/generated/app_localizations.dart';
 import '../theme/app_theme.dart';
 
 class AddPromoCodeSheet extends StatefulWidget {
@@ -21,13 +22,6 @@ class _AddPromoCodeSheetState extends State<AddPromoCodeSheet> {
   int _months = 12;
 
   static const _durations = <int>[1, 3, 6, 12, 24];
-  static const _durationLabels = <int, String>{
-    1: '1 mo',
-    3: '3 mo',
-    6: '6 mo',
-    12: '12 mo',
-    24: '24 mo',
-  };
 
   @override
   void dispose() {
@@ -50,8 +44,9 @@ class _AddPromoCodeSheetState extends State<AddPromoCodeSheet> {
       Navigator.pop(context, code);
     } catch (e) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context);
         setState(() {
-          _error = e is PostgrestException && e.message.isNotEmpty ? e.message : 'Something went wrong.';
+          _error = e is PostgrestException && e.message.isNotEmpty ? e.message : l10n.somethingWentWrong;
           _loading = false;
         });
       }
@@ -62,6 +57,7 @@ class _AddPromoCodeSheetState extends State<AddPromoCodeSheet> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final dark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: EdgeInsets.only(
         left: 20,
@@ -102,10 +98,10 @@ class _AddPromoCodeSheetState extends State<AddPromoCodeSheet> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Add promo code', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: cs.onSurface)),
+                        Text(l10n.addPromoCodeSheetTitle, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: cs.onSurface)),
                         const SizedBox(height: 2),
                         Text(
-                          'Mints a code that restaurants can claim for activation.',
+                          l10n.addPromoCodeSheetSubtitle,
                           style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
                         ),
                       ],
@@ -124,7 +120,7 @@ class _AddPromoCodeSheetState extends State<AddPromoCodeSheet> {
                 onChanged: (_) => setState(() {}),
                 decoration: InputDecoration(
                   prefixIcon: const Icon(Icons.dialpad_rounded, size: 20),
-                  labelText: 'Custom code (optional)',
+                  labelText: l10n.customCodeOptional,
                   suffixIcon: _codeCtrl.text.isEmpty
                       ? null
                       : IconButton(
@@ -135,13 +131,13 @@ class _AddPromoCodeSheetState extends State<AddPromoCodeSheet> {
                 validator: (v) {
                   final value = v?.trim() ?? '';
                   if (value.isEmpty) return null;
-                  if (value.length < 4) return 'Min 4 characters';
+                  if (value.length < 4) return l10n.min4Characters;
                   return null;
                 },
               ),
               const SizedBox(height: 8),
               Text(
-                'Leave empty to auto-generate a random code.',
+                l10n.leaveEmptyToAutoGenerate,
                 style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 20),
@@ -149,7 +145,7 @@ class _AddPromoCodeSheetState extends State<AddPromoCodeSheet> {
                 children: [
                   const Icon(Icons.timer_outlined, size: 16, color: kAccent),
                   const SizedBox(width: 8),
-                  Text('Activation duration', style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: cs.onSurface)),
+                  Text(l10n.activationDuration, style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: cs.onSurface)),
                 ],
               ),
               const SizedBox(height: 10),
@@ -170,7 +166,7 @@ class _AddPromoCodeSheetState extends State<AddPromoCodeSheet> {
                         border: Border.all(color: selected ? kAccent : (dark ? Colors.white : const Color(0xFF111827)).withValues(alpha: dark ? 0.10 : 0.07)),
                       ),
                       child: Text(
-                        _durationLabels[m]!,
+                        l10n.durationMonths(m),
                         style: TextStyle(
                           fontSize: 13.5,
                           fontWeight: FontWeight.w700,
@@ -204,7 +200,7 @@ class _AddPromoCodeSheetState extends State<AddPromoCodeSheet> {
                   Expanded(
                     child: OutlinedButton(
                       onPressed: _loading ? null : () => Navigator.pop(context),
-                      child: const Text('Cancel'),
+                      child: Text(l10n.cancel),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -213,7 +209,7 @@ class _AddPromoCodeSheetState extends State<AddPromoCodeSheet> {
                       onPressed: _loading ? null : _submit,
                       child: _loading
                           ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                          : const Text('Mint code'),
+                          : Text(l10n.mintCode),
                     ),
                   ),
                 ],

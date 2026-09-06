@@ -5,8 +5,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../core/theme/app_colors.dart';
 import '../data/admin_repository.dart';
+import '../l10n/generated/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_logo.dart';
+import '../widgets/language_switcher.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -46,14 +48,15 @@ class _LoginPageState extends State<LoginPage> {
       if (!admin) {
         await _repo.signOut();
         if (mounted) {
-          setState(() => _error = 'This account is not authorized as platform admin.');
+          setState(() => _error = AppLocalizations.of(context).login_unauthorized);
         }
       }
     } catch (e) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context);
         setState(() => _error = e is AuthException && e.message.isNotEmpty
             ? e.message
-            : 'Sign in failed. Check your credentials.');
+            : l10n.login_signInFailed);
       }
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -63,6 +66,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -85,6 +89,19 @@ class _LoginPageState extends State<LoginPage> {
               bottom: -110,
               left: -80,
               child: _glow(dark ? const Color(0xFFFFA17A).withValues(alpha: 0.20) : const Color(0xFFFFA17A).withValues(alpha: 0.14), 260),
+            ),
+            Positioned(
+              top: 0,
+              right: 0,
+              child: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: LanguageSwitcher(),
+                  ),
+                ),
+              ),
             ),
             SafeArea(
               child: Center(
@@ -113,7 +130,7 @@ class _LoginPageState extends State<LoginPage> {
                                 const AppLogo(size: 110),
                                 const SizedBox(height: 20),
                 Text(
-                  'My Rest Admin',
+                  l10n.appTitle,
                   style: TextStyle(
                     fontSize: 26,
                     fontWeight: FontWeight.w800,
@@ -123,7 +140,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Platform control center',
+                  l10n.appSubtitle,
                   style: TextStyle(
                     fontSize: 14,
                     color: (dark ? Colors.white : AppColors.textPrimary).withValues(alpha: 0.6),
@@ -133,11 +150,11 @@ class _LoginPageState extends State<LoginPage> {
                                 TextFormField(
                                   controller: _emailCtrl,
                                   keyboardType: TextInputType.emailAddress,
-                                  decoration: const InputDecoration(
-                                    prefixIcon: Icon(Icons.alternate_email_rounded, size: 20),
-                                    labelText: 'Email',
+                                  decoration: InputDecoration(
+                                    prefixIcon: const Icon(Icons.alternate_email_rounded, size: 20),
+                                    labelText: l10n.login_emailLabel,
                                   ),
-                                  validator: (v) => v == null || !v.contains('@') ? 'Enter a valid email' : null,
+                                  validator: (v) => v == null || !v.contains('@') ? l10n.login_invalidEmail : null,
                                 ),
                                 const SizedBox(height: 14),
                                 TextFormField(
@@ -149,9 +166,9 @@ class _LoginPageState extends State<LoginPage> {
                                       icon: Icon(_obscure ? Icons.visibility_off_rounded : Icons.visibility_rounded, size: 20),
                                       onPressed: () => setState(() => _obscure = !_obscure),
                                     ),
-                                    labelText: 'Password',
+                                    labelText: l10n.login_passwordLabel,
                                   ),
-                                  validator: (v) => v == null || v.length < 6 ? 'Password too short' : null,
+                                  validator: (v) => v == null || v.length < 6 ? l10n.login_passwordTooShort : null,
                                   onFieldSubmitted: (_) => _login(),
                                 ),
                                 if (_error != null) ...[
@@ -170,12 +187,12 @@ class _LoginPageState extends State<LoginPage> {
                                     onPressed: _loading ? null : _login,
                                     child: _loading
                                         ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2.5))
-                                        : const Row(
+                                        : Row(
                                             mainAxisAlignment: MainAxisAlignment.center,
                                             children: [
-                                              Icon(Icons.login_rounded, size: 20),
-                                              SizedBox(width: 8),
-                                              Text('Sign in'),
+                                              const Icon(Icons.login_rounded, size: 20),
+                                              const SizedBox(width: 8),
+                                              Text(l10n.login_signIn),
                                             ],
                                           ),
                                   ),
